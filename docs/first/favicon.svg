@@ -1,0 +1,7 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" height="32" width="32">
+<rect height="32" width="32" x="0" y="0" style="fill: #888; stroke: none"/>
+<g transform="translate(16 16)">
+  <ellipse rx="16" ry="16" fill="#d101010"/>
+  <text x="-8" y="11" font-size="32" style="fill: #d0d0d0; stroke: none">1</text>
+</g>
+</svg>
