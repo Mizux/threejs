@@ -1,0 +1,7 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" height="64" width="64" >
+<!--BG-->
+<rect x="0" y="0" height="100%" width="100%" style="fill: #111; stroke: none"/>
+<!--orbit-->
+<circle cx="50%" cy="50%" r="42%" fill="#222" stroke="#FFF" stroke-width="2%" stroke-dasharray="5%" />
+<circle cx="50%" cy="50%" r="31%" fill="none" stroke="#FFF" stroke-width="2%" stroke-dasharray="5%" />
+</svg>
