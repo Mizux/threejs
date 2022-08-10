@@ -13,3 +13,4 @@ lerna-debug.log*
 node_modules/
 
 *.css.d.ts
+*.swp
