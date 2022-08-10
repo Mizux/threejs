@@ -1,4 +1,4 @@
-![CI](https://github.com/Mizux/threejs-101/workflows/CI/badge.svg)
+[![CI](https://github.com/Mizux/threejs/actions/workflows/ci.yml/badge.svg)](https://github.com/Mizux/threejs/actions/workflows/ci.yml)
 
 # Introduction
 My own tutorial on ThreeJS
