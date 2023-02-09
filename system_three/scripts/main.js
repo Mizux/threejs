@@ -1,18 +1,32 @@
 import Stats from './stats.module.js'
 import * as THREE from './three.module.js'
 
-const stats = new Stats();
-stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild( stats.dom );
-
+let stats1, stats2, stats3;
 let scene, camera, renderer;
 let wire, group;
 
 init();
 animate();
 
-
 function init() {
+  stats1 = new Stats();
+  stats1.showPanel(0); // Panel 0 = fps
+  stats1.domElement.style.cssText = 'position:absolute;top:0px;left:0px;';
+  stats1.domElement.style.display = 'inline';
+  document.body.appendChild(stats1.domElement);
+
+  stats2 = new Stats();
+  stats2.showPanel(1); // Panel 1 = ms
+  stats2.domElement.style.cssText = 'position:absolute;top:0px;left:80px;';
+  stats2.domElement.style.display = 'none';
+  document.body.appendChild(stats2.domElement);
+
+  stats3 = new Stats();
+  stats3.showPanel(2); // Panel 2 = mb
+  stats3.domElement.style.cssText = 'position:absolute;top:0px;left:160px;';
+  stats3.domElement.style.display = 'none';
+  document.body.appendChild(stats3.domElement);
+
   // Create an empty scene
   scene = new THREE.Scene();
 
@@ -74,23 +88,19 @@ function init() {
 function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
-
   renderer.setSize( window.innerWidth, window.innerHeight );
-  render();
 }
 
 // Render Loop
 function animate() {
   requestAnimationFrame( animate );
-	stats.begin();
+
   wire.rotation.y -= 0.04;
   group.rotateZ(0.005);
-  render();
-  stats.end();
-}
 
-function render() {
+  // Render the scene
   renderer.render(scene, camera);
-};
-
-render();
+  stats1.update();
+  stats2.update();
+  stats3.update();
+}
