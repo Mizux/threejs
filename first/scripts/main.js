@@ -1,70 +1,82 @@
-// Create an empty scene
-var scene = new THREE.Scene();
-// Create a basic perspective camera
-var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-camera.position.z = 24;
-camera.lookAt( 0.0, 0.0, 0.0);
+let scene, camera, renderer;
+let group;
 
-// Create a renderer with Antialiasing
-var renderer = new THREE.WebGLRenderer({antialias:true});
-renderer.setClearColor("#101010");
-renderer.setSize( window.innerWidth, window.innerHeight );
+init();
+animate();
 
-// Append Renderer to DOM
-document.body.appendChild( renderer.domElement );
+function init() {
+  // Create an empty scene
+  scene = new THREE.Scene();
+  // Create a basic perspective camera
+  camera = new THREE.PerspectiveCamera(
+    /*FOV=*/75,
+    /*aspect=*/window.innerWidth / window.innerHeight,
+    /*near=*/0.1,
+    /*far=*/1000);
+  camera.position.set(0, 50, 100);
+  camera.lookAt(0.0, 0.0, 0.0);
 
-// ------------------------------------------------
-// FUN STARTS HERE
-// ------------------------------------------------
+  const lights = [];
+  lights[0] = new THREE.PointLight(0xffffff, 1, 0);
+  lights[1] = new THREE.PointLight(0xffffff, 1, 0);
 
-var geometry = new THREE.SphereGeometry(0.5, 16, 16);
-var material = new THREE.MeshBasicMaterial( { color:"#0040A0" } );
-const planet = new THREE.Mesh(geometry, material);
-planet.position.set(16, 0, 0);
-//scene.add( planet );
+  lights[0].position.set(0, 500, 100);
+  lights[1].position.set(250, 250, 0);
 
-var geometry = new THREE.SphereGeometry(0.125, 16, 16);
-var material = new THREE.MeshBasicMaterial( { color:"#A0A0A0" } );
-const moon = new THREE.Mesh(geometry, material);
-moon.position.set(19, 0, 0);
-//scene.add( moon );
+  scene.add(lights[0]);
+  scene.add(lights[1]);
 
-var geometry = new THREE.SphereGeometry(1.5, 8, 8);
-var material = new THREE.MeshBasicMaterial( { color:"#808080", wireframe:true, transparent:true } );
-const wire = new THREE.Mesh( geometry, material );
-wire.position.set(16, 0, 0);
-wire.rotation.x = Math.PI / 2;
-//scene.add( wire );
+  // Create a renderer with Antialiasing
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  //renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  //renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.setClearColor("#101010");
+  // Append Renderer to DOM
+  document.body.appendChild(renderer.domElement);
 
-const group = new THREE.Group();
-group.add( planet );
-group.add( moon );
-group.add( wire );
-scene.add( group );
+  // EventListener
+  window.addEventListener('resize', onWindowResize);
 
-var geometry = new THREE.RingGeometry( 15.9, 16.1, 64 );
-var material = new THREE.MeshBasicMaterial( { color:"#F0F0F0", side:THREE.DoubleSide } );
-const orbit = new THREE.Mesh( geometry, material );
-scene.add( orbit );
+  // ------------------------------------------------
+  // FUN STARTS HERE
+  // ------------------------------------------------
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
 
-const radius = 16;
-const radials = 16;
-const circles = 8;
-const divisions = 64;
-const polarGrid = new THREE.PolarGridHelper( radius, radials, circles, divisions, "#F0F0F0", "#808080" );
-polarGrid.rotation.x = Math.PI / 2;
-scene.add( polarGrid );
+  const plane_geometry = new THREE.PlaneGeometry(1000, 500, 10, 10);
+  plane_geometry.rotateX(-Math.PI / 2)
+  //const plane_material = new THREE.MeshBasicMaterial({ color: "grey" });
+  const plane_material = new THREE.MeshPhongMaterial({ color: "#101010", flatShading: false});
+  const plane = new THREE.Mesh(plane_geometry, plane_material);
+  scene.add(plane);
+
+  group = new THREE.Group();
+  group.position.set(0, 25, 0);
+  scene.add(group);
+
+  const box_geometry = new THREE.BoxGeometry(30, 30, 30);
+  const box_material = new THREE.MeshPhongMaterial({ color: 0x156289, emissive: 0x072534, flatShading: true });
+  const cube = new THREE.Mesh(box_geometry, box_material);
+  group.add(cube);
+
+  group.add(new THREE.LineSegments(box_geometry, lineMaterial));
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}
 
 // Render Loop
-var render = function () {
-  requestAnimationFrame( render );
+function animate() {
+  requestAnimationFrame(animate);
 
-  wire.rotation.y -= 0.04;
-
-  group.rotateZ(0.005);
+  group.rotateX(0.003);
+  group.rotateY(0.005);
+  group.rotateZ(0.007);
 
   // Render the scene
   renderer.render(scene, camera);
-};
-
-render();
+}
