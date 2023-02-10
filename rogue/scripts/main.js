@@ -1,8 +1,8 @@
 import Display from './Display.js';
 import * as THREE from './three.module.js';
-//import * as TWEEN from './Tween.js';
+import * as TWEEN from './Tween.js';
 //import * as GSAP from './gsap.js';
-//import * as ROT from './rot.js';
+import * as ROT from './rot.js';
 
 const display = new Display();
 display.initialize();
@@ -11,7 +11,6 @@ display.animate();
 // ------------------------------------------------
 // FUN STARTS HERE
 // ------------------------------------------------
-
 const group = new THREE.Group();
 group.position.set(0, 25, 0);
 display.scene.add(group);
