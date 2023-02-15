@@ -31,3 +31,4 @@ export default class Debug {
   this.#ms.update();
  }
 }
+

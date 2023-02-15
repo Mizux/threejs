@@ -1,20 +1,22 @@
 import Debug from './Debug.js';
 import Game from './Game.js';
 
-const d = new Debug();
-const g = new Game();
-
-function update() {
-  g.reset();
-  setTimeout(() => {
-    update();
-  }, 1000);
-}
-update();
+const debug = new Debug();
+const game = new Game();
 
 function animate() {
   requestAnimationFrame(animate);
-  d.update();
-  g.update();
+  debug.update();
+  game.update();
 }
 animate();
+
+// Testing: reset Game every second
+function update() {
+  game.reset();
+  setTimeout(() => {
+    update();
+  }, 10000);
+}
+update();
+

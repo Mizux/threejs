@@ -1,7 +1,19 @@
 //import * as ROT from './rot.js';
 import Vector2 from './Vector2.js';
 
-export default class World {
+export class WorldItem {
+  static FLOOR = new WorldItem('FLOOR', 0);
+  static WALL = new WorldItem('WALL', 1);
+  static BOX = new WorldItem('BOX', 2);
+
+  constructor(name, value) {
+    this.name = name;
+    this.value = value;
+    Object.freeze(this);
+  }
+}
+
+export class World {
   #map = null;
 
   constructor() {
@@ -19,13 +31,27 @@ export default class World {
   }
 
   freeCells() {
-    const tmp = [...this.#map].filter(([k, v]) => v === '.');
-    return Array.from(tmp, ([k, v]) => k);
+    const res = [];
+    this.#map.forEach((v, k) => { if (v === WorldItem.FLOOR) res.push(k); });
+    return res;
   }
 
   boxes() {
-    const tmp = [...this.#map].filter(([k, v]) => v === '*');
-    return Array.from(tmp, ([k, v]) => k);
+    const res = [];
+    this.#map.forEach((v, k) => { if (v === WorldItem.BOX) res.push(k); });
+    return res;
+  }
+
+  isWalkable(position) {
+    console.assert(position instanceof Vector2, 'position must be of type Vector2');
+    let value = undefined;
+    this.#map.forEach((v, k) => {
+       if (k.x === position.x && k.y === position.y)
+         value = v;
+    });
+    if (value === WorldItem.FLOOR) return true;
+    if (value === WorldItem.BOX) return true;
+    return false;
   }
 
   #generateMap() {
@@ -35,17 +61,18 @@ export default class World {
         return;
       }
       const key = new Vector2(x, y);
-      this.#map.set(key, '.');
+      this.#map.set(key, WorldItem.FLOOR);
     };
     digger.create(digCallback.bind(this));
   }
 
-  #generateBoxes() {
+  #generateBoxes(numBox=24) {
     const cells = this.freeCells();
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < numBox; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
       const key = cells.splice(index, 1)[0];
-      this.#map.set(key, '*');
+      this.#map.set(key, WorldItem.BOX);
     }
   }
 }
+
