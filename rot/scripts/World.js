@@ -1,10 +1,9 @@
 //import * as ROT from './rot.js';
-import Vector2 from './Vector2.js';
+import {Vector2 as Position} from './Vector2.js';
+import WorldMap from './WorldMap.js';
 
 export class WorldItem {
-  static FLOOR = new WorldItem('FLOOR', 0);
-  static WALL = new WorldItem('WALL', 1);
-  static BOX = new WorldItem('BOX', 2);
+  static BOX = new WorldItem('BOX', 0);
 
   constructor(name, value) {
     this.name = name;
@@ -14,20 +13,22 @@ export class WorldItem {
 }
 
 export class World {
-  #map = null;
+  #worldMap = null;
+  #items = null;
 
   constructor() {
-    this.#map = new Map();
+    this.#worldMap = new WorldMap();
+    this.items = [];
+    this.generate();
   }
 
   generate() {
-    this.#map = new Map();
-    this.#generateMap();
+    this.#worldMap.generate();
     this.#generateBoxes();
   }
 
   map() {
-    return this.#map;
+    return this.#worldMap;
   }
 
   freeCells() {
@@ -42,31 +43,8 @@ export class World {
     return res;
   }
 
-  isWalkable(position) {
-    console.assert(position instanceof Vector2, 'position must be of type Vector2');
-    let value = undefined;
-    this.#map.forEach((v, k) => {
-       if (k.x === position.x && k.y === position.y)
-         value = v;
-    });
-    if (value === WorldItem.FLOOR) return true;
-    if (value === WorldItem.BOX) return true;
-    return false;
-  }
-
-  #generateMap() {
-    const digger = new ROT.Map.Digger();
-    const digCallback = function (x, y, value) {
-      if (value) {
-        return;
-      }
-      const key = new Vector2(x, y);
-      this.#map.set(key, WorldItem.FLOOR);
-    };
-    digger.create(digCallback.bind(this));
-  }
-
   #generateBoxes(numBox=24) {
+    this.#items = this.#items.filter(p => )
     const cells = this.freeCells();
     for (let i = 0; i < numBox; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
