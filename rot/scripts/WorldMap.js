@@ -1,19 +1,19 @@
 //import * as ROT from './rot.js';
-import Vector2 as Position from './Vector2.js';
+import Vector2 from './Vector2.js';
+//import { Vector2 as Position } from './Vector2.js';
 
 export class MapItem {
-  static FLOOR = new MapItem('FLOOR', 0);
-  //static WALL = new MapItem('WALL', 1);
-  //static BOX = new MapItem('BOX', 2);
+  static FLOOR = new MapItem('FLOOR');
+  //static WALL = new MapItem('WALL');
+  //static BOX = new MapItem('BOX');
 
   constructor(name, value) {
     this.name = name;
-    this.value = value;
     Object.freeze(this);
   }
 }
 
-export default class WorldMap {
+export class WorldMap {
   #map = null;
   #rooms = null;
 
@@ -27,13 +27,17 @@ export default class WorldMap {
     this.#generateMap();
   }
 
-  map() {
-    return this.#map;
+  floors() {
+    const locations = [];
+    this.#map.forEach((type, position) => {
+      if (type === MapItem.FLOOR) locations.push(position);
+    });
+    return locations;
   }
 
   isWalkable(position) {
-    console.assert(position instanceof Position, 'position must be of type Vector2');
-    return this.#map.keys().find(k => position.equals(k)) !== undefined;
+    console.assert(position instanceof Vector2, 'position must be of type Vector2');
+    return [...this.#map.keys()].find(k => position.equals(k)) !== undefined;
   }
 
   #generateMap() {
@@ -42,7 +46,7 @@ export default class WorldMap {
       if (value) {
         return;
       }
-      const key = new Position(x, y);
+      const key = new Vector2(x, y);
       this.#map.set(key, MapItem.FLOOR);
     };
     digger.create(digCallback.bind(this));

@@ -1,13 +1,13 @@
 //import * as ROT from './rot.js';
-import {Vector2 as Position} from './Vector2.js';
-import WorldMap from './WorldMap.js';
+import { WorldMap, MapItem } from './WorldMap.js';
 
 export class WorldItem {
-  static BOX = new WorldItem('BOX', 0);
+  static OBJ = new WorldItem('OBJECT');
+  static BOX = new WorldItem('BOX');
+  static MOB = new WorldItem('MOB');
 
   constructor(name, value) {
     this.name = name;
-    this.value = value;
     Object.freeze(this);
   }
 }
@@ -18,38 +18,63 @@ export class World {
 
   constructor() {
     this.#worldMap = new WorldMap();
-    this.items = [];
+    this.#items = new Map();
     this.generate();
   }
 
   generate() {
     this.#worldMap.generate();
     this.#generateBoxes();
-  }
-
-  map() {
-    return this.#worldMap;
+    this.#generateMobs();
   }
 
   freeCells() {
-    const res = [];
-    this.#map.forEach((v, k) => { if (v === WorldItem.FLOOR) res.push(k); });
-    return res;
+    let locations = this.#worldMap.floors();
+    locations = locations.filter(position => !(position in this.#items.keys()));
+    return locations;
+  }
+
+  isWalkable(position) {
+    return this.#worldMap.isWalkable(position);
   }
 
   boxes() {
-    const res = [];
-    this.#map.forEach((v, k) => { if (v === WorldItem.BOX) res.push(k); });
-    return res;
+    const locations = [];
+    this.#items.forEach((type, position) => {
+      if (type === WorldItem.BOX) locations.push(position); });
+    return locations;
   }
 
+  mobs() {
+    const locations = [];
+    this.#items.forEach((type, position) => {
+      if (type === WorldItem.MOB) locations.push(position);
+    });
+    return locations;
+  }
+
+  #removeItemByType(type) {
+    console.assert(type instanceof WorldItem, 'type must be of type WorldItem');
+    this.#items.forEach((v, k) => { if (v === type) this.#items.delete(k);});
+  }
+   
   #generateBoxes(numBox=24) {
-    this.#items = this.#items.filter(p => )
+    this.#removeItemByType(WorldItem.BOX);
     const cells = this.freeCells();
     for (let i = 0; i < numBox; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
-      const key = cells.splice(index, 1)[0];
-      this.#map.set(key, WorldItem.BOX);
+      const position = cells.splice(index, 1)[0];
+      this.#items.set(position, WorldItem.BOX);
+    }
+  }
+   
+  #generateMobs(numMob=5) {
+    this.#removeItemByType(WorldItem.MOB);
+    const cells = this.freeCells();
+    for (let i = 0; i < numMob; i++) {
+      const index = Math.floor(ROT.RNG.getUniform() * cells.length);
+      const position = cells.splice(index, 1)[0];
+      this.#items.set(position, WorldItem.MOB);
     }
   }
 }

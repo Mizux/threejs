@@ -42,20 +42,21 @@ export default class Game {
   #placePlayer() {
     const cells = this.#world.freeCells();
     const index = Math.floor(ROT.RNG.getUniform() * cells.length);
-    const key = cells.splice(index, 1)[0];
-    this.#player.x = key.x;
-    this.#player.y = key.y;
+    const position = cells.splice(index, 1)[0];
+    this.#player.x = position.x;
+    this.#player.y = position.y;
   }
 
   #worldItemToSprite(item) {
-    console.assert(item instanceof WorldItem, 'item must be of type WorldItem')
     switch(item) {
-      case WorldItem.FLOOR:
+      case 'floor':
         return '.';
-      case WorldItem.WALL:
+      case 'wall':
         return '#';
-      case WorldItem.BOX:
-        return 'B';
+      case 'box':
+        return '*';
+      case 'mob':
+        return 'g';
       default:
         return '?';
     }
@@ -63,8 +64,14 @@ export default class Game {
 
   #draw() {
     this.#display.clear();
-    for (const [key, val] of this.#world.map()) {
-      this.#display.draw(key.x, key.y, this.#worldItemToSprite(val));
+    for (const position of this.#world.freeCells()) {
+      this.#display.draw(position.x, position.y, this.#worldItemToSprite('floor'));
+    }
+    for (const position of this.#world.boxes()) {
+      this.#display.draw(position.x, position.y, this.#worldItemToSprite('box'));
+    }
+    for (const position of this.#world.mobs()) {
+      this.#display.draw(position.x, position.y, this.#worldItemToSprite('mob'));
     }
     this.#display.draw(this.#player.x, this.#player.y, '@');
   }
