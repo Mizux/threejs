@@ -19,15 +19,15 @@ export default class Player extends Vector2 {
 
   handleEvent(e) {
     const keyMap = {};
-    keyMap[38] = 0;
-    keyMap[33] = 1;
-    keyMap[39] = 2;
-    keyMap[34] = 3;
-    keyMap[40] = 4;
-    keyMap[35] = 5;
-    keyMap[37] = 6;
-    keyMap[36] = 7;
-
+    keyMap[38] = 0; // ArrowUp (8)
+    keyMap[33] = 1; // PageUp (9)
+    keyMap[39] = 2; // ArrowRight (6)
+    keyMap[34] = 3; // PageDown (3)
+    keyMap[40] = 4; // ArrowDown (2)
+    keyMap[35] = 5; // End (1)
+    keyMap[37] = 6; // ArrowLeft (4)
+    keyMap[36] = 7; // Home (7)
+    //keyMap[12] = ; // Clear (5)
     const code = e.keyCode;
     if (!(code in keyMap)) { return; }
 
