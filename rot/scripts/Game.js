@@ -1,10 +1,12 @@
 //import * as ROT from './rot.js';
-import Vector2 from './Vector2.js';
-import {WorldItem, World} from './World.js';
-import Player from './Player.js';
+import Vector2 from "./Vector2.js";
+import InputHandler from "./InputHandler.js";
+import { WorldItem, World } from "./World.js";
+import Player from "./Player.js";
 
 export default class Game {
   #display = null;
+  #inputHandler = null;
   #world = null;
   #player = null;
   #engine = null;
@@ -12,6 +14,8 @@ export default class Game {
   constructor() {
     this.#display = new ROT.Display();
     document.body.appendChild(this.#display.getContainer());
+
+    this.#inputHandler = new InputHandler(this);
 
     this.#world = new World(this);
     this.#player = new Player(this);
@@ -24,10 +28,21 @@ export default class Game {
     this.#engine.start();
   }
 
-  display() { return this.#display; }
-  world() { return this.#world; }
-  player() { return this.#player; }
-  engine() { return this.#engine; }
+  display() {
+    return this.#display;
+  }
+  inputHandler() {
+    return this.#inputHandler;
+  }
+  world() {
+    return this.#world;
+  }
+  player() {
+    return this.#player;
+  }
+  engine() {
+    return this.#engine;
+  }
 
   reset() {
     this.#world.generate();
@@ -48,32 +63,43 @@ export default class Game {
   }
 
   #worldItemToSprite(item) {
-    switch(item) {
-      case 'floor':
-        return '.';
-      case 'wall':
-        return '#';
-      case 'box':
-        return '*';
-      case 'mob':
-        return 'g';
+    switch (item) {
+      case "floor":
+        return ".";
+      case "wall":
+        return "#";
+      case "box":
+        return "*";
+      case "mob":
+        return "g";
       default:
-        return '?';
+        return "?";
     }
   }
 
   #draw() {
     this.#display.clear();
     for (const position of this.#world.freeCells()) {
-      this.#display.draw(position.x, position.y, this.#worldItemToSprite('floor'));
+      this.#display.draw(
+        position.x,
+        position.y,
+        this.#worldItemToSprite("floor")
+      );
     }
     for (const position of this.#world.boxes()) {
-      this.#display.draw(position.x, position.y, this.#worldItemToSprite('box'));
+      this.#display.draw(
+        position.x,
+        position.y,
+        this.#worldItemToSprite("box")
+      );
     }
     for (const position of this.#world.mobs()) {
-      this.#display.draw(position.x, position.y, this.#worldItemToSprite('mob'));
+      this.#display.draw(
+        position.x,
+        position.y,
+        this.#worldItemToSprite("mob")
+      );
     }
-    this.#display.draw(this.#player.x, this.#player.y, '@');
+    this.#display.draw(this.#player.x, this.#player.y, "@");
   }
 }
-
