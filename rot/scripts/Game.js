@@ -9,6 +9,7 @@ export default class Game {
   #inputHandler = null;
   #world = null;
   #player = null;
+  #scheduler = null;
   #engine = null;
 
   constructor() {
@@ -17,14 +18,14 @@ export default class Game {
 
     this.#inputHandler = new InputHandler(this);
 
+    this.#scheduler = new ROT.Scheduler.Simple();
+    this.#engine = new ROT.Engine(this.#scheduler);
+
     this.#world = new World(this);
     this.#player = new Player(this);
 
     this.reset();
 
-    const scheduler = new ROT.Scheduler.Simple();
-    scheduler.add(this.#player, true);
-    this.#engine = new ROT.Engine(scheduler);
     this.#engine.start();
   }
 
@@ -34,14 +35,19 @@ export default class Game {
   inputHandler() {
     return this.#inputHandler;
   }
+
+  scheduler() {
+    return this.#scheduler;
+  }
+  engine() {
+    return this.#engine;
+  }
+
   world() {
     return this.#world;
   }
   player() {
     return this.#player;
-  }
-  engine() {
-    return this.#engine;
   }
 
   reset() {

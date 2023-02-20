@@ -1,27 +1,23 @@
 //import * as ROT from './rot.js';
+import Actor from './Actor.js';
 import Vector2 from './Vector2.js';
-import Game from './Game.js';
 
-export default class Player extends Vector2 {
-  #game = null;
-
+export default class Player extends Actor {
   constructor(game, x=0, y=0) {
-    super(x, y);
-    console.assert(game instanceof Game, 'game must be of type Game')
-    this.#game = game;
+    super(game, x, y);
   }
 
   act() {
-    this.#game.engine().lock();
-    this.#game.inputHandler().subscribe(this);
+    this._game.engine().lock();
+    this._game.inputHandler().subscribe(this);
   }
 
   handleEvent(value) {
     if (value.length === 2) {
       const newPos = new Vector2(this.x + value[0], this.y + value[1]);
       /* cannot move in this direction */
-      if (!this.#game.world().isWalkable(newPos)) {
-        console.log("bump wall");
+      if (!this._game.world().isWalkable(newPos)) {
+        console.log("bump wall, play again");
         return;
       } else {
         console.log("Player move to ", newPos);
@@ -29,8 +25,8 @@ export default class Player extends Vector2 {
 
       this.x = newPos.x;
       this.y = newPos.y;
-      this.#game.inputHandler().unsubscribe(this);
-      this.#game.engine().unlock();
+      this._game.inputHandler().unsubscribe(this);
+      this._game.engine().unlock();
     }
   }
 }
