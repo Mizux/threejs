@@ -15,10 +15,12 @@ export class WorldItem {
 export class World {
   #worldMap = null;
   #items = null;
+  #mobs = null;
 
   constructor() {
     this.#worldMap = new WorldMap();
     this.#items = new Map();
+    this.#mobs = [];
     this.generate();
   }
 
@@ -70,6 +72,9 @@ export class World {
    
   #generateMobs(numMob=5) {
     this.#removeItemByType(WorldItem.MOB);
+    this.#mobs.forEach(m => m.dispose());
+    this.#mobs.length = 0;
+
     const cells = this.freeCells();
     for (let i = 0; i < numMob; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
