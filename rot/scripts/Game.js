@@ -22,7 +22,7 @@ export default class Game {
     this.#engine = new ROT.Engine(this.#scheduler);
 
     this.#world = new World(this);
-    this.#player = new Player(this);
+    this.#player = new Player(this, new Vector2());
 
     this.reset();
 
@@ -64,8 +64,8 @@ export default class Game {
     const cells = this.#world.freeCells();
     const index = Math.floor(ROT.RNG.getUniform() * cells.length);
     const position = cells.splice(index, 1)[0];
-    this.#player.x = position.x;
-    this.#player.y = position.y;
+    this.#player.position.x = position.x;
+    this.#player.position.y = position.y;
   }
 
   #worldItemToSprite(item) {
@@ -106,6 +106,9 @@ export default class Game {
         this.#worldItemToSprite("mob")
       );
     }
-    this.#display.draw(this.#player.x, this.#player.y, "@");
+    this.#display.draw(
+      this.#player.position.x,
+       this.#player.position.y,
+       "@");
   }
 }
