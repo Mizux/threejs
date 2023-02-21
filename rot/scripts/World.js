@@ -1,5 +1,7 @@
+import Game from './Game.js';
 //import * as ROT from './rot.js';
 import { WorldMap, MapItem } from './WorldMap.js';
+import Monster from './Monster.js';
 
 export class WorldItem {
   static OBJ = new WorldItem('OBJECT');
@@ -13,11 +15,15 @@ export class WorldItem {
 }
 
 export class World {
+  #game = null;
   #worldMap = null;
   #items = null;
   #mobs = null;
 
-  constructor() {
+  constructor(game) {
+    console.assert(game instanceof Game, 'game must be of type Game')
+    this.#game = game;
+
     this.#worldMap = new WorldMap();
     this.#items = new Map();
     this.#mobs = [];
@@ -80,6 +86,7 @@ export class World {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
       const position = cells.splice(index, 1)[0];
       this.#items.set(position, WorldItem.MOB);
+      this.#mobs.push(new Monster(this.#game, position));
     }
   }
 }
