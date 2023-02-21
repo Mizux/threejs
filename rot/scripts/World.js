@@ -36,7 +36,7 @@ export class World {
     this.#generateMobs();
   }
 
-  freeCells() {
+  emptyCells() {
     let locations = this.#worldMap.floors();
     locations = locations.filter(position => !(position in this.#items.keys()));
     return locations;
@@ -68,7 +68,7 @@ export class World {
    
   #generateBoxes(numBox=24) {
     this.#removeItemByType(WorldItem.BOX);
-    const cells = this.freeCells();
+    const cells = this.emptyCells();
     for (let i = 0; i < numBox; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
       const position = cells.splice(index, 1)[0];
@@ -81,7 +81,7 @@ export class World {
     this.#mobs.forEach(m => m.dispose());
     this.#mobs.length = 0;
 
-    const cells = this.freeCells();
+    const cells = this.emptyCells();
     for (let i = 0; i < numMob; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
       const position = cells.splice(index, 1)[0];

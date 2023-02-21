@@ -10,11 +10,11 @@ export default class Game {
 
   #inputHandler = null;
 
-  #world = null;
-  #player = null;
   #scheduler = null;
   #engine = null;
 
+  #world = null;
+  #player = null;
 
   constructor(node = null) {
     this.#render = new Render(this);
@@ -70,7 +70,7 @@ export default class Game {
   }
 
   #placePlayer() {
-    const cells = this.#world.freeCells();
+    const cells = this.#world.emptyCells();
     const index = Math.floor(ROT.RNG.getUniform() * cells.length);
     const position = cells.splice(index, 1)[0];
     this.#player.position.x = position.x;
