@@ -32,7 +32,7 @@ export default class Render {
   }
 
   update(timestamp) {
-    console.log(timestamp);
+    //console.log(timestamp);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
 
