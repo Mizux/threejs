@@ -22,7 +22,7 @@ export default class InputHandler {
     //keyMap[12] = ; // Clear (5)
     
     this.#subscribers = [];
-    document.addEventListener('keydown', this);
+    document.addEventListener('keydown', this, false);
   }
 
   handleEvent(e) {
