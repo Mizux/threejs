@@ -8,6 +8,7 @@ export default class Player extends Actor {
   }
 
   act() {
+    //console.log('act...');
     this._game.engine().lock();
     this._game.inputHandler().subscribe(this);
   }

@@ -26,14 +26,16 @@ export default class InputHandler {
   }
 
   handleEvent(e) {
-    e.preventDefault(); // prevent the default action (scroll / move caret)
+    //console.log('handleEvent: ', e);
     if (this.#subscribers.length === 0) {return;}
 
     const code = e.keyCode;
     if (!(code in this.#keyMap)) {return;}
 
     const value = this.#keyMap[code];
+    //console.log('subscribers: ', this.#subscribers.length);
     this.#subscribers.forEach(s => s.handleEvent(value));    
+    e.preventDefault(); // prevent the default action (scroll / move caret)
   }
 
   subscribe(subscriber) {
