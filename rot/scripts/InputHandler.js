@@ -40,6 +40,7 @@ export default class InputHandler {
 
   subscribe(subscriber) {
     console.assert(typeof subscriber.handleEvent === 'function', "subscriber don't provide a handleEvent()")
+    this.unsubscribe(subscriber); // avoid multi-subscriptions
     this.#subscribers.push(subscriber);
   }
 
