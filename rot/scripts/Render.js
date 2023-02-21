@@ -24,44 +24,45 @@ export default class Render {
 
   // Control the rendering engine
   start() {
-    function update(timestamp) {
-      //console.log(timestamp);
-      this.#debug.update();
-
-      this.#display.clear();
-      for (const position of this.#game.world().emptyCells()) {
-        this.#display.draw(
-          position.x,
-          position.y,
-          this.#worldItemToSprite("floor")
-        );
-      }
-      for (const position of this.#game.world().boxes()) {
-        this.#display.draw(
-          position.x,
-          position.y,
-          this.#worldItemToSprite("box")
-        );
-      }
-      for (const position of this.#game.world().mobs()) {
-        this.#display.draw(
-          position.x,
-          position.y,
-          this.#worldItemToSprite("mob")
-        );
-      }
-      this.#display.draw(
-        this.#game.player().position.x,
-        this.#game.player().position.y,
-        "@"
-      );
-      this.#callback = requestAnimationFrame(update.bind(this));
-    }
-    update.bind(this)();
+    this.update();
   }
   stop() {
     if (this.#callback !== null)
       cancelAnimationFrame(this.#callback);
+  }
+
+  update(timestamp) {
+    console.log(timestamp);
+    this.#callback = requestAnimationFrame(this.update.bind(this));
+    this.#debug.update();
+
+    this.#display.clear();
+    for (const position of this.#game.world().emptyCells()) {
+      this.#display.draw(
+        position.x,
+        position.y,
+        this.#worldItemToSprite("floor")
+      );
+    }
+    for (const position of this.#game.world().boxes()) {
+      this.#display.draw(
+        position.x,
+        position.y,
+        this.#worldItemToSprite("box")
+      );
+    }
+    for (const position of this.#game.world().mobs()) {
+      this.#display.draw(
+        position.x,
+        position.y,
+        this.#worldItemToSprite("mob")
+      );
+    }
+    this.#display.draw(
+      this.#game.player().position.x,
+      this.#game.player().position.y,
+      "@"
+    );
   }
 
   #worldItemToSprite(item) {
