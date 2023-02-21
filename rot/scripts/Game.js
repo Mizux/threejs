@@ -40,8 +40,8 @@ export default class Game {
     this.#engine.start();
   }
   stop() {
-    this.#render.stop();
     //this.#engine.stop();
+    this.#render.stop();
   }
 
   inputHandler() {
@@ -63,10 +63,8 @@ export default class Game {
   }
 
   reset() {
-    this.stop();
     this.#world.generate();
     this.#placePlayer();
-    this.start();
   }
 
   #placePlayer() {
