@@ -1,8 +1,8 @@
 import Display from './Display.js';
-import * as THREE from './three.module.js';
-import * as TWEEN from './Tween.js';
-//import * as GSAP from './gsap.js';
-import * as ROT from './rot.js';
+import * as THREE from './vendor/three.module.js';
+//import * as TWEEN from './vendor/Tween.js';
+//import * as GSAP from './vendor/gsap.js';
+//import * as ROT from './vendor/rot.js';
 
 const display = new Display();
 display.initialize();
@@ -24,10 +24,10 @@ const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent:
 group.add(new THREE.LineSegments(box_geometry, lineMaterial));
 
 // Render Loop
-const animate = (t) => {
-  window.requestAnimationFrame(animate)
+const animate = (/*t*/) => {
+  window.requestAnimationFrame(animate);
   group.rotateX(0.003);
   group.rotateY(0.005);
   group.rotateZ(0.007);
-}
+};
 animate();

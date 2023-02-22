@@ -1,6 +1,6 @@
-import Stats from './stats.module.js';
-import * as THREE from './three.module.js';
-import { OrbitControls } from './OrbitControls.js';
+import Stats from './vendor/stats.module.js';
+import * as THREE from './vendor/three.module.js';
+import { OrbitControls } from './vendor/OrbitControls.js';
 
 export default class Display {
   constructor() {
@@ -68,7 +68,7 @@ export default class Display {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     //this.renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer.setClearColor("#101010");
+    this.renderer.setClearColor('#101010');
     //this.renderer.shadowMap.enabled = true;
     document.body.appendChild(this.renderer.domElement);
 
