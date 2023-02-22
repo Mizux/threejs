@@ -1,6 +1,6 @@
-import Stats from './stats.module.js'
-import * as THREE from './three.module.js'
-import { CSS3DRenderer, CSS3DObject } from './CSS3DRenderer.js';
+import Stats from './vendor/stats.module.js';
+import * as THREE from './vendor/three.module.js';
+import { CSS3DRenderer, CSS3DObject } from './vendor/CSS3DRenderer.js';
 
 const stats = new Stats();
 stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -128,7 +128,6 @@ const table = [
 ];
 
 let scene, camera, renderer;
-let wire, group;
 
 const objects = [];
 const targets = { table: [], sphere: [], helix: [], grid: [] };
@@ -155,22 +154,22 @@ function init() {
   window.addEventListener( 'resize', onWindowResize );
   const buttonTable = document.getElementById( 'table' );
   buttonTable.addEventListener( 'click', function () {
-    transform( targets.table, 2000 );
+    transform( targets.table);
   } );
 
   const buttonSphere = document.getElementById( 'sphere' );
   buttonSphere.addEventListener( 'click', function () {
-    transform( targets.sphere, 2000 );
+    transform( targets.sphere);
   } );
 
   const buttonHelix = document.getElementById( 'helix' );
   buttonHelix.addEventListener( 'click', function () {
-    transform( targets.helix, 2000 );
+    transform( targets.helix);
   } );
 
   const buttonGrid = document.getElementById( 'grid' );
   buttonGrid.addEventListener( 'click', function () {
-    transform( targets.grid, 2000 );
+    transform( targets.grid);
   } );
 
   // ------------------------------------------------
@@ -261,7 +260,7 @@ function onWindowResize() {
   render();
 }
 
-function transform( targets, duration ) {
+function transform(targets) {
   for ( let i = 0; i < objects.length; i ++ ) {
     const object = objects[ i ];
     const target = targets[ i ];
@@ -288,6 +287,6 @@ function animate() {
 
 function render() {
   renderer.render(scene, camera);
-};
+}
 
 render();
