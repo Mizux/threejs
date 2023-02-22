@@ -19,3 +19,6 @@ rules:
   semi:
     - error
     - always
+globals:
+  # use bundled version -> can't be imported
+  ROT: readonly
