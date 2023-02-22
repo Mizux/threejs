@@ -1,4 +1,4 @@
-import Stats from './stats.module.js';
+import Stats from './vendor/stats.module.js';
 
 export default class Debug {
   #fps = null;

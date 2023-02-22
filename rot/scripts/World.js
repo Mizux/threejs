@@ -1,4 +1,4 @@
-//import * as ROT from './rot.js';
+//import * as ROT from './vendor/rot.js';
 import Game from './Game.js';
 import { WorldMap } from './WorldMap.js';
 import Monster from './Monster.js';

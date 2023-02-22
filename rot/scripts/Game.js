@@ -1,4 +1,4 @@
-//import * as ROT from './rot.js';
+//import * as ROT from './vendor/rot.js';
 import Vector2 from './Vector2.js';
 import Render from './Render.js';
 import InputHandler from './InputHandler.js';
