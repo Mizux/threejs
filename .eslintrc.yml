@@ -1,7 +1,7 @@
+extends: eslint:recommended
 env:
   browser: true
-  es2021: true
-extends: eslint:recommended
+  es6: true
 overrides: []
 parserOptions:
   ecmaVersion: latest
@@ -22,3 +22,4 @@ rules:
 globals:
   # use bundled version -> can't be imported
   ROT: readonly
+ignorePatterns: ["**/vendor/*.js"]
