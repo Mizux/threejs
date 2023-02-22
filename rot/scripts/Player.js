@@ -1,4 +1,3 @@
-//import * as ROT from './rot.js';
 import Actor from './Actor.js';
 import Vector2 from './Vector2.js';
 

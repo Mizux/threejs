@@ -1,6 +1,5 @@
 //import * as ROT from './rot.js';
 import Vector2 from './Vector2.js';
-//import { Vector2 as Position } from './Vector2.js';
 
 export class MapItem {
   static FLOOR = new MapItem('FLOOR');
