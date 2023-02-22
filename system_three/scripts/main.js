@@ -1,12 +1,22 @@
-import Stats from './stats.module.js'
-import * as THREE from './three.module.js'
+import Stats from './vendor/stats.module.js';
+import * as THREE from './vendor/three.module.js';
 
 let stats1, stats2, stats3;
 let scene, camera, renderer;
 let wire, group;
 
-init();
-animate();
+// Render Loop
+function animate(t) {
+  requestAnimationFrame( animate );
+  wire.rotation.y = -0.2 * t * Math.PI / 180.0;
+  group.rotation.z = 0.02 * t * Math.PI / 180.0;
+
+  // Render the scene
+  renderer.render(scene, camera);
+  stats1.update();
+  stats2.update();
+  stats3.update();
+}
 
 function init() {
   stats1 = new Stats();
@@ -37,7 +47,7 @@ function init() {
 
   // Create a renderer with Antialiasing
   renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setClearColor("#101010");
+  renderer.setClearColor('#101010');
   renderer.setSize( window.innerWidth, window.innerHeight );
   // Append Renderer to DOM
   document.body.appendChild( renderer.domElement );
@@ -46,20 +56,20 @@ function init() {
   // ------------------------------------------------
   // FUN STARTS HERE
   // ------------------------------------------------
-  var geometry = new THREE.SphereGeometry(0.5, 16, 16);
-  var material = new THREE.MeshBasicMaterial( { color:"#0040A0" } );
+  let geometry = new THREE.SphereGeometry(0.5, 16, 16);
+  let material = new THREE.MeshBasicMaterial( { color:'#0040A0' } );
   const planet = new THREE.Mesh(geometry, material);
   planet.position.set(16, 0, 0);
   //scene.add( planet );
 
-  var geometry = new THREE.SphereGeometry(0.125, 16, 16);
-  var material = new THREE.MeshBasicMaterial( { color:"#A0A0A0" } );
+  geometry = new THREE.SphereGeometry(0.125, 16, 16);
+  material = new THREE.MeshBasicMaterial( { color:'#A0A0A0' } );
   const moon = new THREE.Mesh(geometry, material);
   moon.position.set(19, 0, 0);
   //scene.add( moon );
 
-  var geometry = new THREE.SphereGeometry(1.5, 8, 8);
-  var material = new THREE.MeshBasicMaterial( { color:"#808080", wireframe:true, transparent:true } );
+  geometry = new THREE.SphereGeometry(1.5, 8, 8);
+  material = new THREE.MeshBasicMaterial( { color:'#808080', wireframe:true, transparent:true } );
   wire = new THREE.Mesh( geometry, material );
   wire.position.set(16, 0, 0);
   wire.rotation.x = Math.PI / 2;
@@ -71,8 +81,8 @@ function init() {
   group.add( wire );
   scene.add( group );
 
-  var geometry = new THREE.RingGeometry( 15.9, 16.1, 64 );
-  var material = new THREE.MeshBasicMaterial( { color:"#F0F0F0", side:THREE.DoubleSide } );
+  geometry = new THREE.RingGeometry( 15.9, 16.1, 64 );
+  material = new THREE.MeshBasicMaterial( { color:'#F0F0F0', side:THREE.DoubleSide } );
   const orbit = new THREE.Mesh( geometry, material );
   scene.add( orbit );
 
@@ -80,7 +90,7 @@ function init() {
   const radials = 16;
   const circles = 8;
   const divisions = 64;
-  const polarGrid = new THREE.PolarGridHelper( radius, radials, circles, divisions, "#F0F0F0", "#808080" );
+  const polarGrid = new THREE.PolarGridHelper( radius, radials, circles, divisions, '#F0F0F0', '#808080' );
   polarGrid.rotation.x = Math.PI / 2;
   scene.add( polarGrid );
 }
@@ -91,16 +101,5 @@ function onWindowResize() {
   renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-// Render Loop
-function animate() {
-  requestAnimationFrame( animate );
-
-  wire.rotation.y -= 0.04;
-  group.rotateZ(0.005);
-
-  // Render the scene
-  renderer.render(scene, camera);
-  stats1.update();
-  stats2.update();
-  stats3.update();
-}
+init();
+animate();
