@@ -1,6 +1,6 @@
 import Game from './Game.js';
-//import * as ROT from './rot.js';
-import { WorldMap, MapItem } from './WorldMap.js';
+import * as ROT from './rot.js';
+import { WorldMap } from './WorldMap.js';
 import Monster from './Monster.js';
 
 export class WorldItem {
@@ -8,7 +8,7 @@ export class WorldItem {
   static BOX = new WorldItem('BOX');
   static MOB = new WorldItem('MOB');
 
-  constructor(name, value) {
+  constructor(name) {
     this.name = name;
     Object.freeze(this);
   }
@@ -21,7 +21,7 @@ export class World {
   #mobs = null;
 
   constructor(game) {
-    console.assert(game instanceof Game, 'game must be of type Game')
+    console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;
 
     this.#worldMap = new WorldMap();

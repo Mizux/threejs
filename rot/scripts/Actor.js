@@ -7,9 +7,9 @@ export default class Actor {
   _game = null;
 
   constructor(game, position) {
-    console.assert(game instanceof Game, 'game must be of type Game')
+    console.assert(game instanceof Game, 'game must be of type Game');
     this._game = game;
-    console.assert(position instanceof Vector2, 'position must be of type Vector2')
+    console.assert(position instanceof Vector2, 'position must be of type Vector2');
     this.position = position;
 
     this._game.scheduler().add(this, true);

@@ -7,7 +7,7 @@ export class MapItem {
   //static WALL = new MapItem('WALL');
   //static BOX = new MapItem('BOX');
 
-  constructor(name, value) {
+  constructor(name) {
     this.name = name;
     Object.freeze(this);
   }
@@ -18,7 +18,7 @@ export class WorldMap {
   #rooms = null;
 
   constructor() {
-		WorldMap.prototype.isWorldMap = true;
+    WorldMap.prototype.isWorldMap = true;
     this.#map = new Map();
   }
 

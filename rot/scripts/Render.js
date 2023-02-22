@@ -12,7 +12,7 @@ export default class Render {
   constructor(game) {
     this.#debug = new Debug();
 
-    console.assert(game instanceof Game, 'game must be of type Game')
+    console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;
 
     this.#display = new ROT.Display();
@@ -31,7 +31,7 @@ export default class Render {
       cancelAnimationFrame(this.#callback);
   }
 
-  update(timestamp) {
+  update(/*timestamp*/) {
     //console.log(timestamp);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
@@ -41,42 +41,42 @@ export default class Render {
       this.#display.draw(
         position.x,
         position.y,
-        this.#worldItemToSprite("floor")
+        this.#worldItemToSprite('floor')
       );
     }
     for (const position of this.#game.world().boxes()) {
       this.#display.draw(
         position.x,
         position.y,
-        this.#worldItemToSprite("box")
+        this.#worldItemToSprite('box')
       );
     }
     for (const position of this.#game.world().mobs()) {
       this.#display.draw(
         position.x,
         position.y,
-        this.#worldItemToSprite("mob")
+        this.#worldItemToSprite('mob')
       );
     }
     this.#display.draw(
       this.#game.player().position.x,
       this.#game.player().position.y,
-      "@"
+      '@'
     );
   }
 
   #worldItemToSprite(item) {
     switch (item) {
-      case "floor":
-        return ".";
-      case "wall":
-        return "#";
-      case "box":
-        return "*";
-      case "mob":
-        return "g";
-      default:
-        return "?";
+    case 'floor':
+      return '.';
+    case 'wall':
+      return '#';
+    case 'box':
+      return '*';
+    case 'mob':
+      return 'g';
+    default:
+      return '?';
     }
   }
 }

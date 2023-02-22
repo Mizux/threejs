@@ -1,9 +1,9 @@
 //import * as ROT from './rot.js';
-import Vector2 from "./Vector2.js";
-import Render from "./Render.js";
-import InputHandler from "./InputHandler.js";
-import { WorldItem, World } from "./World.js";
-import Player from "./Player.js";
+import Vector2 from './Vector2.js';
+import Render from './Render.js';
+import InputHandler from './InputHandler.js';
+import { World } from './World.js';
+import Player from './Player.js';
 
 export default class Game {
   #render = null;

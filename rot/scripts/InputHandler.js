@@ -7,6 +7,7 @@ export default class InputHandler {
   #subscribers = null;
 
   constructor(game) {
+    console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;
 
     this.#keyMap = {};
@@ -39,7 +40,7 @@ export default class InputHandler {
   }
 
   subscribe(subscriber) {
-    console.assert(typeof subscriber.handleEvent === 'function', "subscriber don't provide a handleEvent()")
+    console.assert(typeof subscriber.handleEvent === 'function', 'subscriber don\'t provide a handleEvent()');
     this.unsubscribe(subscriber); // avoid multi-subscriptions
     this.#subscribers.push(subscriber);
   }
