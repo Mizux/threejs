@@ -1,33 +1,14 @@
-import Display from './Display.js';
-import * as THREE from './vendor/three.module.js';
-//import * as TWEEN from './vendor/Tween.js';
-//import * as GSAP from './vendor/gsap.js';
-//import * as ROT from './vendor/rot.js';
+import Game from './Game.js';
 
-const display = new Display();
-display.initialize();
-display.animate();
+const game = new Game();
+game.start();
 
-// ------------------------------------------------
-// FUN STARTS HERE
-// ------------------------------------------------
-const group = new THREE.Group();
-group.position.set(0, 25, 0);
-display.scene.add(group);
+// Testing: reset Game every second
+function update() {
+  game.reset();
+  setTimeout(() => {
+    update();
+  }, 10000);
+}
+update();
 
-const box_geometry = new THREE.BoxGeometry(25, 25, 25);
-const box_material = new THREE.MeshPhongMaterial({ color: 0x156289, emissive: 0x072534, flatShading: true });
-const box = new THREE.Mesh(box_geometry, box_material);
-group.add(box);
-
-const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
-group.add(new THREE.LineSegments(box_geometry, lineMaterial));
-
-// Render Loop
-const animate = (/*t*/) => {
-  window.requestAnimationFrame(animate);
-  group.rotateX(0.003);
-  group.rotateY(0.005);
-  group.rotateZ(0.007);
-};
-animate();
