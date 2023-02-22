@@ -1,0 +1,22 @@
+{
+  "name": "threejs",
+  "version": "1.0.0",
+  "description": "Small threejs samples",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizux/threejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mizux/threejs/issues"
+  },
+  "homepage": "https://github.com/mizux/threejs#readme",
+  "devDependencies": {
+    "eslint": "^8.34.0"
+  }
+}
