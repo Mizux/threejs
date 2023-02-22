@@ -32,7 +32,7 @@ function init() {
   renderer.setSize(window.innerWidth, window.innerHeight);
   //renderer.toneMapping = THREE.ACESFilmicToneMapping;
   //renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.setClearColor("#101010");
+  renderer.setClearColor('#101010');
   // Append Renderer to DOM
   document.body.appendChild(renderer.domElement);
 
@@ -45,9 +45,9 @@ function init() {
   const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
 
   const plane_geometry = new THREE.PlaneGeometry(1000, 500, 10, 10);
-  plane_geometry.rotateX(-Math.PI / 2)
+  plane_geometry.rotateX(-Math.PI / 2);
   //const plane_material = new THREE.MeshBasicMaterial({ color: "grey" });
-  const plane_material = new THREE.MeshPhongMaterial({ color: "#101010", flatShading: false});
+  const plane_material = new THREE.MeshPhongMaterial({ color: '#101010', flatShading: false});
   const plane = new THREE.Mesh(plane_geometry, plane_material);
   scene.add(plane);
 
