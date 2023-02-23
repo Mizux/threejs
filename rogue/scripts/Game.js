@@ -28,7 +28,7 @@ export default class Game {
     this.#scheduler = new ROT.Scheduler.Simple();
     this.#engine = new ROT.Engine(this.#scheduler);
 
-    this.#world = new World(this);
+    this.#world = new World(this, 80, 50);
     this.#player = new Player(this, new Vector2());
 
     this.reset();

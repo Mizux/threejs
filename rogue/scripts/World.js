@@ -16,34 +16,35 @@ export class WorldItem {
 
 export class World {
   #game = null;
-  #worldMap = null;
+  //map = null;
   #items = null;
   #mobs = null;
 
-  constructor(game) {
+  constructor(game, width, height) {
     console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;
 
-    this.#worldMap = new WorldMap();
+    this.map = new WorldMap(width, height);
     this.#items = new Map();
     this.#mobs = [];
-    this.generate();
   }
 
+
+
   generate() {
-    this.#worldMap.generate();
+    this.map.generate();
     this.#generateBoxes();
     this.#generateMobs();
   }
 
   emptyCells() {
-    let locations = this.#worldMap.floors();
+    let locations = this.map.floors();
     locations = locations.filter(position => !(position in this.#items.keys()));
     return locations;
   }
 
   isWalkable(position) {
-    return this.#worldMap.isWalkable(position);
+    return this.map.isWalkable(position);
   }
 
   boxes() {
