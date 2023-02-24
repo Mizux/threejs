@@ -6,6 +6,7 @@ import * as THREE from './vendor/three.module.js';
 
 export default class Render {
   #debug = null;
+  #prev = undefined;
   _game = null;
 
   #callback = null;
@@ -109,6 +110,7 @@ export default class Render {
       cancelAnimationFrame(this.#callback);
       this.#callback = null;
     }
+    this.#prev = undefined;
 
     // cleanup objects
     const meshes = [];
@@ -131,13 +133,15 @@ export default class Render {
   }
 
   update(t) {
+    const dt = this.#getDeltaT(t);
+
     //console.log(t);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
 
-    this.playerGroup.rotateX(0.003);
-    this.playerGroup.rotateY(0.005);
-    this.playerGroup.rotateZ(0.007);
+    this.playerGroup.rotateX(0.003 * dt);
+    this.playerGroup.rotateY(0.005 * dt);
+    this.playerGroup.rotateZ(0.007 * dt);
 
     this.playerGroup.position.x = this._game.world.player.position.x;
     this.playerGroup.position.y = this._game.world.player.position.y;
@@ -175,6 +179,15 @@ export default class Render {
       '@'
     );
     */
+  }
+
+  #getDeltaT(t) {
+    if (this.#prev === undefined) {
+      this.#prev = t;
+    }
+    const dt = t - this.#prev;
+    this.#prev = t;
+    return dt;
   }
 
   #initialize() {
