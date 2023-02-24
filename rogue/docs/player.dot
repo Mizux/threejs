@@ -1,0 +1,119 @@
+@startuml
+title Player game loop
+
+participant InputHandler as I
+participant Engine as E
+participant Scheduler as S
+participant Player as P
+participant Mob as M
+
+== Initialization ==
+
+[-> I: new InputHandler()
+activate I
+[<-- I
+
+[-> S: new Scheduler()
+activate S
+[<-- S
+
+[-> E: new Engine(Scheduler)
+activate E
+[<-- E
+
+[-> P: new Player(Scheduler)
+activate P
+  P -> S: scheduler.add(player)
+  activate S
+  S --> P
+  deactivate S
+[<-- P
+
+[-> M: new Mob(Scheduler)
+activate M
+  M -> S: scheduler.add(mob)
+  activate S
+  S --> M
+  deactivate S
+[<-- M
+
+== Start Game Loop ==
+
+[-> E: engine.start()
+activate E #0f0
+activate E
+[<-- E
+deactivate E
+
+== Game Loop Mob Turn ==
+
+E -> S: scheduler.next()
+activate S
+  S -> M: mob.act()
+  activate M
+  M -> M: do stuff
+  M --> S
+  deactivate M
+S --> E
+deactivate S
+
+== Game Loop Player Turn ==
+
+E -> S: scheduler.next()
+activate S
+  S -> P: player.act()
+  activate P
+    P -> E: engine.lock()
+    activate E
+    E --> P
+    deactivate E
+    P -> I: input.subscribe(player)
+    activate I #0f0
+    activate I
+    I --> P
+    deactivate I
+  P --> S
+  deactivate P
+S --> E
+deactivate S
+deactivate E
+
+[o-> I: bad input event
+activate I #f00
+  I -> P: player.HandleEvent(e)
+  activate P
+  P -> P: ignore event
+  P --> I
+  deactivate P
+[<-- I
+deactivate I
+
+[o-> I: good input event
+activate I #f00
+  I -> P: player.HandleEvent(e)
+  activate P
+    P -> I: input.unsubscribe(player)
+    activate I
+    I --> P
+    deactivate I
+    P -> P: do stuff
+    P -> E: engine.unlock()
+    activate E #0f0
+    activate E
+    E --> P
+    deactivate E
+  P --> I
+  deactivate P
+[<-- I
+deactivate I
+deactivate I
+
+== Stop Game Loop ==
+
+[o-> E: engine.stop()
+activate E
+[<-- E
+deactivate E
+deactivate E
+
+@enduml
