@@ -2,7 +2,7 @@
 import Actor from './Actor.js';
 import Vector2 from './Vector2.js';
 
-export default class Player extends Actor {
+export default class Monster extends Actor {
   constructor(game, position) {
     super(game, position);
   }
