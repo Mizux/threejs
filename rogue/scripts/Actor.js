@@ -9,7 +9,7 @@ export default class Actor {
     console.assert(game instanceof Game, 'game must be of type Game');
     this._game = game;
     console.assert(position instanceof Vector2, 'position must be of type Vector2');
-    this.position = position;
+    this.position = position.clone();
 
     this._game.scheduler().add(this, true);
   }
