@@ -1,9 +1,9 @@
-import Vector2 from './Vector2.js';
 import Game from './Game.js';
+import Vector2 from './Vector2.js';
 
 export default class Actor {
-  position = null;
   _game = null;
+  position = null;
 
   constructor(game, position) {
     console.assert(game instanceof Game, 'game must be of type Game');

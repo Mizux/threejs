@@ -39,7 +39,7 @@ export default class Game {
     this.#state = State.STARTED;
   }
   stop() {
-    //this.#engine.stop();
+    this.engine.lock();
     this.#render.stop();
     this.#state = State.STOPPED;
   }
