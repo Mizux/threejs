@@ -14,15 +14,16 @@ class State {
 }
 
 export default class Game {
+  #state = null;
   #render = null;
 
   #inputHandler = null;
 
   #scheduler = null;
   #engine = null;
-  #state = null;
 
   constructor(node = null) {
+    this.#state = State.STOPPED;
     this.#render = new Render(this);
     if (node === null) document.body.appendChild(this.#render.getNode());
     else node.appendChild(this.#render.getNode());
@@ -31,7 +32,6 @@ export default class Game {
 
     this.#scheduler = new ROT.Scheduler.Simple();
     this.#engine = new ROT.Engine(this.#scheduler);
-    this.#state = State.STOPPED;
 
     this.world = new World(this, 80, 50);
 
