@@ -1,8 +1,8 @@
 //import * as ROT from './vendor/rot.js';
-import Debug from './Debug.js';
-import Game from './Game.js';
-import * as THREE from './vendor/three.module.js';
-import { OrbitControls } from './vendor/OrbitControls.js';
+import Debug from "./Debug.js";
+import Game from "./Game.js";
+import * as THREE from "./vendor/three.module.js";
+import { OrbitControls } from "./vendor/OrbitControls.js";
 
 export default class Render {
   #debug = null;
@@ -13,7 +13,7 @@ export default class Render {
   constructor(game) {
     this.#debug = new Debug();
 
-    console.assert(game instanceof Game, 'game must be of type Game');
+    console.assert(game instanceof Game, "game must be of type Game");
     this._game = game;
 
     this.scene = null;
@@ -37,43 +37,115 @@ export default class Render {
 
   // Control the rendering engine
   start() {
-    this.group = new THREE.Group();
-    this.group.position.set(0, 0, 0);
-    this.scene.add(this.group);
+    // Reset Camera position
+    this.camera.position.set(
+      this._game.world().map.width / 2,
+      this._game.world().map.height / 2,
+      64
+    );
+    this.camera.lookAt(
+      this._game.world().map.width / 2,
+      this._game.world().map.height / 2,
+      0
+    );
 
-    const box_geometry = new THREE.BoxGeometry(1, 1, 1);
-    const box_material = new THREE.MeshPhongMaterial({ color: 0x156289, emissive: 0x072534, flatShading: true });
-    const box = new THREE.Mesh(box_geometry, box_material);
-    this.group.add(box);
+    // Reset light positions
+    this.lights[0].position.set(
+      this.camera.position.x,
+      this.camera.position.y,
+      150
+    );
+    this.lights[1].position.set(
+      this._game.world().map.width / 2,
+      this.camera.position.y,
+      10
+    );
 
-    const lineMaterial = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5 });
-    this.group.add(new THREE.LineSegments(box_geometry, lineMaterial));
+    // # Create World
+    this.worldGroup = new THREE.Group();
+    this.scene.add(this.worldGroup);
+    // ## Create Floors
+    const floors = this._game.world().map.floors();
+    //console.log(floors)
+    for (let i = 0; i < floors.length; ++i) {
+      const planeGeometry = new THREE.PlaneGeometry(1, 1);
+      const planeMaterial = new THREE.MeshPhongMaterial({
+        color: 0x010101,
+        emissive: 0x101010,
+        flatShading: true,
+      });
+      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      plane.position.x = floors[i].x;
+      plane.position.y = floors[i].y;
+      this.worldGroup.add(plane);
+    }
 
-    this.update();
+    // ## Create Player
+    this.playerGroup = new THREE.Group();
+    this.scene.add(this.playerGroup);
+
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const boxMaterial = new THREE.MeshPhongMaterial({
+      color: 0x156289,
+      emissive: 0x072534,
+      flatShading: true,
+    });
+    const box = new THREE.Mesh(boxGeometry, boxMaterial);
+    this.playerGroup.add(box);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.5,
+    });
+    this.playerGroup.add(new THREE.LineSegments(boxGeometry, lineMaterial));
+    this.playerGroup.position.set(this._game.player().position);
+
+    this.#callback = requestAnimationFrame(this.update.bind(this));
   }
+
   stop() {
-    if (this.#callback !== null)
+    if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);
+      this.#callback = null;
+    }
 
     // cleanup objects
+    const meshes = [];
+    const lines = [];
+    this.scene.traverse(function (object) {
+      if (object.isMesh) meshes.push(object);
+      if (object.isLine) lines.push(object);
+    });
+    for (let i = 0; i < meshes.length; i++) {
+      const mesh = meshes[i];
+      mesh.material.dispose();
+      mesh.geometry.dispose();
+    }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      line.material.dispose();
+    }
+    this.scene.remove(this.playerGroup);
+    this.scene.remove(this.worldGroup);
   }
 
-  update(/*timestamp*/) {
-    //console.log(timestamp);
+  update(t) {
+    //console.log(t);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
 
-    this.group.rotateX(0.003);
-    this.group.rotateY(0.005);
-    this.group.rotateZ(0.007);
-      
-    this.group.position.x = this._game.player().position.x;
-    this.group.position.y = this._game.player().position.y;
+    this.playerGroup.rotateX(0.003);
+    this.playerGroup.rotateY(0.005);
+    this.playerGroup.rotateZ(0.007);
+
+    this.playerGroup.position.x = this._game.player().position.x;
+    this.playerGroup.position.y = this._game.player().position.y;
 
     // Render the scene
     this.renderer.render(this.scene, this.camera);
-    this.controls.update();
-    
+    //this.controls.update();
+
     /*
     this.#display.clear();
     for (const position of this._game.world().emptyCells()) {
@@ -132,13 +204,13 @@ export default class Render {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     //this.renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer.setClearColor('#101010');
+    this.renderer.setClearColor("#101010");
     //this.renderer.shadowMap.enabled = true;
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     // if window resizes
-    window.addEventListener('resize', () => this.#onWindowResize(), false);
+    window.addEventListener("resize", () => this.#onWindowResize(), false);
   }
 
   #onWindowResize() {
