@@ -57,8 +57,8 @@ export default class Render {
       150
     );
     this.lights[1].position.set(
-      this._game.world.map.width / 2,
-      this.camera.position.y,
+      this._game.world.player.position.x,
+      this._game.world.player.position.y,
       10
     );
 
@@ -138,6 +138,12 @@ export default class Render {
     //console.log(t);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
+    // Light
+    this.lights[1].position.set(
+      this._game.world.player.position.x,
+      this._game.world.player.position.y,
+      3
+    );
 
     this.playerGroup.rotateX(0.003 * dt);
     this.playerGroup.rotateY(0.005 * dt);
@@ -194,8 +200,8 @@ export default class Render {
     // Scene
     this.scene = new THREE.Scene();
 
-    this.lights[0] = new THREE.PointLight(0xffffff, 1, 0);
-    this.lights[1] = new THREE.PointLight(0xf0f0f0, 1, 0);
+    this.lights[0] = new THREE.PointLight(0x804000, 0.2, 0);
+    this.lights[1] = new THREE.PointLight(0xffff00, 5, 0, 0.01);
     this.lights[0].position.set(0, 0, 75);
     this.lights[1].position.set(20, 0, 0);
     this.scene.add(this.lights[0]);
