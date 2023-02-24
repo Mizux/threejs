@@ -18,20 +18,16 @@ export class WorldItem {
 
 export class World {
   #game = null;
-  //map = null;
-  #items = null;
-  #mobs = null;
 
   constructor(game, width, height) {
     console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;
 
     this.map = new WorldMap(width, height);
-    this.#items = new Map();
-    this.#mobs = [];
+    this.items = new Map();
+    this.mobs = [];
     this.player = new Player(this.#game, new Vector2());
   }
-
 
   generate() {
     this.map.generate();
@@ -42,7 +38,7 @@ export class World {
 
   emptyCells() {
     let locations = this.map.floors();
-    locations = locations.filter(position => !(position in this.#items.keys()));
+    locations = locations.filter(position => !(position in this.items.keys()));
     return locations;
   }
 
@@ -52,22 +48,14 @@ export class World {
 
   boxes() {
     const locations = [];
-    this.#items.forEach((type, position) => {
+    this.items.forEach((type, position) => {
       if (type === WorldItem.BOX) locations.push(position); });
-    return locations;
-  }
-
-  mobs() {
-    const locations = [];
-    this.#items.forEach((type, position) => {
-      if (type === WorldItem.MOB) locations.push(position);
-    });
     return locations;
   }
 
   #removeItemByType(type) {
     console.assert(type instanceof WorldItem, 'type must be of type WorldItem');
-    this.#items.forEach((v, k) => { if (v === type) this.#items.delete(k);});
+    this.items.forEach((v, k) => { if (v === type) this.items.delete(k);});
   }
    
   #generateBoxes(numBox=24) {
@@ -76,21 +64,21 @@ export class World {
     for (let i = 0; i < numBox; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
       const position = cells.splice(index, 1)[0];
-      this.#items.set(position, WorldItem.BOX);
+      this.items.set(position, WorldItem.BOX);
     }
   }
    
   #generateMobs(numMob=5) {
     this.#removeItemByType(WorldItem.MOB);
-    this.#mobs.forEach(m => m.dispose());
-    this.#mobs.length = 0;
+    this.mobs.forEach(m => m.dispose());
+    this.mobs.length = 0;
 
     const cells = this.emptyCells();
     for (let i = 0; i < numMob; i++) {
       const index = Math.floor(ROT.RNG.getUniform() * cells.length);
       const position = cells.splice(index, 1)[0];
-      this.#items.set(position, WorldItem.MOB);
-      this.#mobs.push(new Monster(this.#game, position));
+      this.items.set(position, WorldItem.MOB);
+      this.mobs.push(new Monster(this.#game, position));
     }
   }
 
