@@ -30,7 +30,6 @@ export class World {
   }
 
 
-
   generate() {
     this.map.generate();
     this.#generateBoxes();
