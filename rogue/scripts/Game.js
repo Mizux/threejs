@@ -1,10 +1,10 @@
 //import * as ROT from './vendor/rot.js';
-import Render from "./Render.js";
-import InputHandler from "./InputHandler.js";
-import { World } from "./World.js";
+import Render from './Render.js';
+import InputHandler from './InputHandler.js';
+import { World } from './World.js';
 class State {
-  static STARTED = new State("STARTED");
-  static STOPPED = new State("STOPPED");
+  static STARTED = new State('STARTED');
+  static STOPPED = new State('STOPPED');
   //static BOX = new MapItem('BOX');
 
   constructor(name) {

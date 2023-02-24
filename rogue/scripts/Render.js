@@ -1,8 +1,8 @@
 //import * as ROT from './vendor/rot.js';
-import Debug from "./Debug.js";
-import Game from "./Game.js";
-import * as THREE from "./vendor/three.module.js";
-import { OrbitControls } from "./vendor/OrbitControls.js";
+import Debug from './Debug.js';
+import Game from './Game.js';
+import * as THREE from './vendor/three.module.js';
+//import { OrbitControls } from './vendor/OrbitControls.js';
 
 export default class Render {
   #debug = null;
@@ -13,7 +13,7 @@ export default class Render {
   constructor(game) {
     this.#debug = new Debug();
 
-    console.assert(game instanceof Game, "game must be of type Game");
+    console.assert(game instanceof Game, 'game must be of type Game');
     this._game = game;
 
     this.scene = null;
@@ -204,13 +204,13 @@ export default class Render {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     //this.renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer.setClearColor("#101010");
+    this.renderer.setClearColor('#101010');
     //this.renderer.shadowMap.enabled = true;
 
     //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     // if window resizes
-    window.addEventListener("resize", () => this.#onWindowResize(), false);
+    window.addEventListener('resize', () => this.#onWindowResize(), false);
   }
 
   #onWindowResize() {

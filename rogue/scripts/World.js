@@ -1,9 +1,9 @@
 //import * as ROT from './vendor/rot.js';
-import Vector2 from "./Vector2.js";
+import Vector2 from './Vector2.js';
 import Game from './Game.js';
 import { WorldMap } from './WorldMap.js';
 import Monster from './Monster.js';
-import Player from "./Player.js";
+import Player from './Player.js';
 
 export class WorldItem {
   static OBJ = new WorldItem('OBJECT');
