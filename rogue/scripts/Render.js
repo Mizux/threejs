@@ -99,7 +99,6 @@ export default class Render {
       opacity: 0.5,
     });
     this.playerGroup.add(new THREE.LineSegments(boxGeometry, lineMaterial));
-    this.playerGroup.position.set(this._game.player().position);
 
     this.#callback = requestAnimationFrame(this.update.bind(this));
   }
@@ -139,8 +138,6 @@ export default class Render {
     this.playerGroup.rotateY(0.005);
     this.playerGroup.rotateZ(0.007);
 
-    this.playerGroup.position.x = this._game.player().position.x;
-    this.playerGroup.position.y = this._game.player().position.y;
 
     // Render the scene
     this.renderer.render(this.scene, this.camera);

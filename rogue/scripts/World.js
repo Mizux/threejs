@@ -1,7 +1,9 @@
 //import * as ROT from './vendor/rot.js';
+import Vector2 from "./Vector2.js";
 import Game from './Game.js';
 import { WorldMap } from './WorldMap.js';
 import Monster from './Monster.js';
+import Player from "./Player.js";
 
 export class WorldItem {
   static OBJ = new WorldItem('OBJECT');
@@ -27,6 +29,7 @@ export class World {
     this.map = new WorldMap(width, height);
     this.#items = new Map();
     this.#mobs = [];
+    this.player = new Player(this.#game, new Vector2());
   }
 
 
@@ -34,6 +37,7 @@ export class World {
     this.map.generate();
     this.#generateBoxes();
     this.#generateMobs();
+    this.#placePlayer();
   }
 
   emptyCells() {
@@ -88,6 +92,14 @@ export class World {
       this.#items.set(position, WorldItem.MOB);
       this.#mobs.push(new Monster(this.#game, position));
     }
+  }
+
+  #placePlayer() {
+    const cells = this.emptyCells();
+    const index = Math.floor(ROT.RNG.getUniform() * cells.length);
+    const position = cells.splice(index, 1)[0];
+    this.player.position.x = position.x;
+    this.player.position.y = position.y;
   }
 }
 
