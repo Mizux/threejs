@@ -8,7 +8,7 @@ export default class Monster extends Actor {
   }
 
   act() {
-    this._game.engine().lock();
+    this._game.engine.lock();
     const index = Math.floor(ROT.RNG.getUniform() * 8);
     const value = ROT.DIRS[8][index];
 
@@ -20,6 +20,6 @@ export default class Monster extends Actor {
       this.position.x = newPos.x;
       this.position.y = newPos.y;
     }
-    this._game.engine().unlock();
+    this._game.engine.unlock();
   }
 }

@@ -11,10 +11,10 @@ export default class Actor {
     console.assert(position instanceof Vector2, 'position must be of type Vector2');
     this.position = position.clone();
 
-    this._game.scheduler().add(this, true);
+    this._game.scheduler.add(this, true);
   }
 
   dispose() {
-    this._game.scheduler().remove(this, true);
+    this._game.scheduler.remove(this, true);
   }
 }

@@ -8,8 +8,8 @@ export default class Player extends Actor {
 
   act() {
     //console.log('act...');
-    this._game.engine().lock();
-    this._game.inputHandler().subscribe(this);
+    this._game.engine.lock();
+    this._game.input.subscribe(this);
   }
 
   handleEvent(value) {
@@ -27,8 +27,8 @@ export default class Player extends Actor {
 
       this.position.x = newPos.x;
       this.position.y = newPos.y;
-      this._game.inputHandler().unsubscribe(this);
-      this._game.engine().unlock();
+      this._game.input.unsubscribe(this);
+      this._game.engine.unlock();
     }
   }
 }

@@ -17,21 +17,15 @@ export default class Game {
   #state = null;
   #render = null;
 
-  #inputHandler = null;
-
-  #scheduler = null;
-  #engine = null;
-
   constructor(node = null) {
     this.#state = State.STOPPED;
     this.#render = new Render(this);
     if (node === null) document.body.appendChild(this.#render.getNode());
     else node.appendChild(this.#render.getNode());
 
-    this.#inputHandler = new InputHandler(this);
-
-    this.#scheduler = new ROT.Scheduler.Simple();
-    this.#engine = new ROT.Engine(this.#scheduler);
+    this.input = new InputHandler(this);
+    this.scheduler = new ROT.Scheduler.Simple();
+    this.engine = new ROT.Engine(this.scheduler);
 
     this.world = new World(this, 80, 50);
 
@@ -41,7 +35,7 @@ export default class Game {
   // Control the rendering engine
   start() {
     this.#render.start();
-    this.#engine.start();
+    this.engine.start();
     this.#state = State.STARTED;
   }
   stop() {
@@ -50,20 +44,8 @@ export default class Game {
     this.#state = State.STOPPED;
   }
 
-  inputHandler() {
-    return this.#inputHandler;
-  }
-
-  scheduler() {
-    return this.#scheduler;
-  }
-  engine() {
-    return this.#engine;
-  }
-
   reset() {
     const currentState = this.#state;
-
     if (currentState === State.STARTED) {
       this.stop();
     }
