@@ -8,7 +8,7 @@ function update() {
   game.reset();
   setTimeout(() => {
     update();
-  }, 100000);
+  }, 10*1000);
 }
 update();
 
