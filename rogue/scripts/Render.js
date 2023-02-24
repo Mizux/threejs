@@ -39,13 +39,13 @@ export default class Render {
   start() {
     // Reset Camera position
     this.camera.position.set(
-      this._game.world().map.width / 2,
-      this._game.world().map.height / 2,
+      this._game.world.map.width / 2,
+      this._game.world.map.height / 2,
       64
     );
     this.camera.lookAt(
-      this._game.world().map.width / 2,
-      this._game.world().map.height / 2,
+      this._game.world.map.width / 2,
+      this._game.world.map.height / 2,
       0
     );
 
@@ -56,7 +56,7 @@ export default class Render {
       150
     );
     this.lights[1].position.set(
-      this._game.world().map.width / 2,
+      this._game.world.map.width / 2,
       this.camera.position.y,
       10
     );
@@ -65,7 +65,7 @@ export default class Render {
     this.worldGroup = new THREE.Group();
     this.scene.add(this.worldGroup);
     // ## Create Floors
-    const floors = this._game.world().map.floors();
+    const floors = this._game.world.map.floors();
     //console.log(floors)
     for (let i = 0; i < floors.length; ++i) {
       const planeGeometry = new THREE.PlaneGeometry(1, 1);
@@ -99,6 +99,7 @@ export default class Render {
       opacity: 0.5,
     });
     this.playerGroup.add(new THREE.LineSegments(boxGeometry, lineMaterial));
+    this.playerGroup.position.set(this._game.world.player.position);
 
     this.#callback = requestAnimationFrame(this.update.bind(this));
   }
@@ -138,6 +139,8 @@ export default class Render {
     this.playerGroup.rotateY(0.005);
     this.playerGroup.rotateZ(0.007);
 
+    this.playerGroup.position.x = this._game.world.player.position.x;
+    this.playerGroup.position.y = this._game.world.player.position.y;
 
     // Render the scene
     this.renderer.render(this.scene, this.camera);
@@ -145,21 +148,21 @@ export default class Render {
 
     /*
     this.#display.clear();
-    for (const position of this._game.world().emptyCells()) {
+    for (const position of this._game.world.emptyCells()) {
       this.#display.draw(
         position.x,
         position.y,
         this.#worldItemToSprite('floor')
       );
     }
-    for (const position of this._game.world().boxes()) {
+    for (const position of this._game.world.boxes()) {
       this.#display.draw(
         position.x,
         position.y,
         this.#worldItemToSprite('box')
       );
     }
-    for (const position of this._game.world().mobs()) {
+    for (const position of this._game.world.mobs()) {
       this.#display.draw(
         position.x,
         position.y,

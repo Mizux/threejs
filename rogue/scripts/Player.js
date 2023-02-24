@@ -18,7 +18,7 @@ export default class Player extends Actor {
         this.position.x + value[0],
         this.position.y + value[1]);
       /* cannot move in this direction */
-      if (!this._game.world().isWalkable(newPos)) {
+      if (!this._game.world.isWalkable(newPos)) {
         console.log('bump wall, play again');
         return;
       } else {

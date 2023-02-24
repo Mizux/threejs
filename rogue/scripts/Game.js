@@ -22,8 +22,6 @@ export default class Game {
   #engine = null;
   #state = null;
 
-  #world = null;
-
   constructor(node = null) {
     this.#render = new Render(this);
     if (node === null) document.body.appendChild(this.#render.getNode());
@@ -35,7 +33,7 @@ export default class Game {
     this.#engine = new ROT.Engine(this.#scheduler);
     this.#state = State.STOPPED;
 
-    this.#world = new World(this, 80, 50);
+    this.world = new World(this, 80, 50);
 
     this.reset();
   }
@@ -63,17 +61,13 @@ export default class Game {
     return this.#engine;
   }
 
-  world() {
-    return this.#world;
-  }
-
   reset() {
     const currentState = this.#state;
 
     if (currentState === State.STARTED) {
       this.stop();
     }
-    this.#world.generate();
+    this.world.generate();
     if (currentState === State.STARTED) {
       this.start();
     }

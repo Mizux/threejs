@@ -16,7 +16,7 @@ export default class Player extends Actor {
       this.position.x + value[0],
       this.position.y + value[1]
     );
-    if (this._game.world().isWalkable(newPos)) {
+    if (this._game.world.isWalkable(newPos)) {
       this.position.x = newPos.x;
       this.position.y = newPos.y;
     }
