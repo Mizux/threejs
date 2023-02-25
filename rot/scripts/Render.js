@@ -4,8 +4,8 @@ import Game from './Game.js';
 
 export default class Render {
   #debug = null;
-  #game = null;
-  #display = null;
+  #prev = undefined;
+  _game = null;
 
   #callback = null;
 
@@ -13,13 +13,13 @@ export default class Render {
     this.#debug = new Debug();
 
     console.assert(game instanceof Game, 'game must be of type Game');
-    this.#game = game;
+    this._game = game;
 
-    this.#display = new ROT.Display();
+    this.display = new ROT.Display();
   }
 
   getNode() {
-    return this.#display.getContainer();
+    return this.display.getContainer();
   }
 
   // Control the rendering engine
@@ -36,31 +36,31 @@ export default class Render {
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
 
-    this.#display.clear();
-    for (const position of this.#game.world().emptyCells()) {
-      this.#display.draw(
+    this.display.clear();
+    for (const position of this._game.world.emptyCells()) {
+      this.display.draw(
         position.x,
         position.y,
         this.#worldItemToSprite('floor')
       );
     }
-    for (const position of this.#game.world().boxes()) {
-      this.#display.draw(
+    for (const position of this._game.world.boxes()) {
+      this.display.draw(
         position.x,
         position.y,
         this.#worldItemToSprite('box')
       );
     }
-    for (const position of this.#game.world().mobs()) {
-      this.#display.draw(
-        position.x,
-        position.y,
+    for (const mob of this._game.world.mobs) {
+      this.display.draw(
+        mob.position.x,
+        mob.position.y,
         this.#worldItemToSprite('mob')
       );
     }
-    this.#display.draw(
-      this.#game.player().position.x,
-      this.#game.player().position.y,
+    this.display.draw(
+      this._game.world.player.position.x,
+      this._game.world.player.position.y,
       '@'
     );
   }

@@ -3,12 +3,12 @@ import Game from './Game.js';
 const game = new Game();
 game.start();
 
-// Testing: reset Game every second
+// Leak Testing: reset Game
 function update() {
   game.reset();
   setTimeout(() => {
     update();
-  }, 10000);
+  }, 10*1000);
 }
 update();
 

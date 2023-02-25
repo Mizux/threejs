@@ -16,8 +16,10 @@ export class WorldMap {
   #map = null;
   #rooms = null;
 
-  constructor() {
+  constructor(width, height) {
     WorldMap.prototype.isWorldMap = true;
+    this.width = width;
+    this.height = height;
     this.#map = new Map();
   }
 
@@ -40,7 +42,7 @@ export class WorldMap {
   }
 
   #generateMap() {
-    const digger = new ROT.Map.Digger();
+    const digger = new ROT.Map.Digger(this.width, this.height);
     const digCallback = function (x, y, value) {
       if (value) {
         return;
