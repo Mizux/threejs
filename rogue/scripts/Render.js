@@ -208,16 +208,13 @@ export default class Render {
 
     // Reset Camera position
     const map = this._game.world.map;
-    this.camera.position.set(map.width / 2, map.height / 2, 64);
+    const p = Math.max(map.width, map.height) / 2 / Math.tan(this.fov/2*Math.PI/180);
+    this.camera.position.set(map.width / 2, map.height / 2, p);
     this.camera.lookAt(map.width / 2, map.height / 2, 0);
 
     // Reset light positions
     this.lightTarget.position.set(map.width / 2, map.height / 2, 0);
-    this.light.position.set(
-      map.width / 2,
-      map.height / 2,
-      150 // max(w, h)/2 / tan(FOV/2)
-    );
+    this.light.position.set(map.width / 2, map.height / 2, p);
 
     // # Create World
     // ## Create Floors
