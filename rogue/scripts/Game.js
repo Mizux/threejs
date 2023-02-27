@@ -15,13 +15,12 @@ class State {
 
 export default class Game {
   #state = null;
-  #render = null;
 
   constructor(node = null) {
     this.#state = State.STOPPED;
-    this.#render = new Render(this);
-    if (node === null) document.body.appendChild(this.#render.getNode());
-    else node.appendChild(this.#render.getNode());
+    this.render = new Render(this);
+    if (node === null) document.body.appendChild(this.render.getNode());
+    else node.appendChild(this.render.getNode());
 
     this.input = new InputHandler(this);
     this.scheduler = new ROT.Scheduler.Simple();
@@ -34,13 +33,13 @@ export default class Game {
 
   // Control the rendering engine
   start() {
-    this.#render.start();
+    this.render.start();
     this.engine.start();
     this.#state = State.STARTED;
   }
   stop() {
     this.engine.lock();
-    this.#render.stop();
+    this.render.stop();
     this.#state = State.STOPPED;
   }
 
