@@ -73,6 +73,7 @@ class BoxEntity extends Entity {
     super(game, position);
 
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    boxGeometry.scale(1, 1, 0.25);
     const boxMaterial = new THREE.MeshPhongMaterial({
       color: 0x000020,
       emissive: 0x000020,
@@ -98,6 +99,7 @@ class PlayerEntity extends Entity {
     this.root.add(this.light);
 
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    boxGeometry.scale(0.7, 0.7, 0.7);
     const boxMaterial = new THREE.MeshPhongMaterial({
       color: 0x156289,
       emissive: 0x072534,
@@ -115,6 +117,8 @@ class PlayerEntity extends Entity {
     });
     this.line = new THREE.LineSegments(boxGeometry, lineMaterial);
     this.root.add(this.line);
+
+    this.root.position.z = 0.7;
   }
 
   update(t, dt) {
@@ -134,6 +138,7 @@ class MonsterEntity extends Entity {
   constructor(game, position) {
     super(game, position);
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    boxGeometry.scale(0.5, 0.5, 0.5);
     const boxMaterial = new THREE.MeshPhongMaterial({
       color: 0x008000,
       emissive: 0x008000,
@@ -143,6 +148,8 @@ class MonsterEntity extends Entity {
     this.box.castShadow = false; //default is false
     this.box.receiveShadow = false; //default
     this.root.add(this.box);
+
+    this.root.position.z = 0.5;
   }
 
   update(t, dt) {
