@@ -176,7 +176,6 @@ export default class Render {
   #state = null;
   #debug = null;
   #prev = undefined;
-  _game = null;
 
   #callback = null;
   #entities = [];
@@ -186,7 +185,7 @@ export default class Render {
     this.#debug = new Debug();
 
     console.assert(game instanceof Game, 'game must be of type Game');
-    this._game = game;
+    this.game = game;
 
     this.scene = null;
     this.lightTarget = null;
@@ -214,9 +213,12 @@ export default class Render {
     else this.#state = State.STARTED;
 
     // Reset Camera position
-    const map = this._game.world.map;
-    const p = Math.max(map.width, map.height) / 2 / Math.tan(this.fov/2*Math.PI/180);
-    this.camera.position.set(map.width / 2, map.height / 2, p);
+    const map = this.game.world.map;
+    const p =
+      Math.max(map.width, map.height) /
+      2 /
+      Math.tan(((this.fov / 2) * Math.PI) / 180);
+    this.camera.position.set(map.width / 2, map.height / 6, p);
     this.camera.lookAt(map.width / 2, map.height / 2, 0);
 
     // Reset light positions
@@ -225,30 +227,27 @@ export default class Render {
 
     // # Create World
     // ## Create Floors
-    const floors = this._game.world.map.floors();
+    const floors = this.game.world.map.floors();
     for (let i = 0; i < floors.length; ++i) {
-      const floor = new FloorEntity(this._game, floors[i]);
+      const floor = new FloorEntity(this.game, floors[i]);
       this.#entities.push(floor);
     }
 
     // ## Create Player
-    const player = new PlayerEntity(
-      this._game,
-      this._game.world.player.position
-    );
+    const player = new PlayerEntity(this.game, this.game.world.player.position);
     this.#entities.push(player);
 
     // ## Create Mobs
-    const mobs = this._game.world.mobs;
+    const mobs = this.game.world.mobs;
     for (let i = 0; i < mobs.length; ++i) {
-      const mob = new MonsterEntity(this._game, mobs[i].position);
+      const mob = new MonsterEntity(this.game, mobs[i].position);
       this.#entities.push(mob);
     }
 
     // ## Create boxes
-    const boxes = this._game.world.boxes();
+    const boxes = this.game.world.boxes();
     for (let i = 0; i < boxes.length; ++i) {
-      const box = new BoxEntity(this._game, boxes[i]);
+      const box = new BoxEntity(this.game, boxes[i]);
       this.#entities.push(box);
     }
 
@@ -262,8 +261,8 @@ export default class Render {
     if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);
       this.#callback = null;
+      this.#prev = undefined;
     }
-    this.#prev = undefined;
 
     // cleanup objects
     this.#entities.forEach((e) => e.dispose());
@@ -298,7 +297,7 @@ export default class Render {
 
     this.lightTarget = new THREE.Object3D();
     this.scene.add(this.lightTarget);
-    this.light = new THREE.DirectionalLight(0xf0f0f0, 1);
+    this.light = new THREE.DirectionalLight(0xf0f0f0, 2);
     //this.light.castShadow = true;
     this.light.position.set(0, 0, 75);
     this.light.target = this.lightTarget;
