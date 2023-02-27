@@ -58,7 +58,7 @@ export class World {
     this.items.forEach((v, k) => { if (v === type) this.items.delete(k);});
   }
    
-  #generateBoxes(numBox=24) {
+  #generateBoxes(numBox=64) {
     this.#removeItemByType(WorldItem.BOX);
     const cells = this.emptyCells();
     for (let i = 0; i < numBox; i++) {
@@ -68,7 +68,7 @@ export class World {
     }
   }
    
-  #generateMobs(numMob=5) {
+  #generateMobs(numMob=8) {
     this.#removeItemByType(WorldItem.MOB);
     this.mobs.forEach(m => m.dispose());
     this.mobs.length = 0;
