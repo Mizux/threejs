@@ -163,9 +163,8 @@ class MonsterEntity extends Entity {
 }
 class State {
   static STARTED = new State('STARTED');
+  static PAUSED = new State('PAUSED');
   static STOPPED = new State('STOPPED');
-  //static BOX = new MapItem('BOX');
-
   constructor(name) {
     this.name = name;
     Object.freeze(this);
@@ -252,6 +251,17 @@ export default class Render {
     }
 
     this.#callback = requestAnimationFrame(this.update.bind(this));
+  }
+
+  pause() {
+    if (this.#state === State.PAUSED || this.#state === State.STOPPED) return;
+    else this.#state = State.PAUSED;
+
+    if (this.#callback !== null) {
+      cancelAnimationFrame(this.#callback);
+      this.#callback = null;
+      this.#prev = undefined;
+    }
   }
 
   stop() {
