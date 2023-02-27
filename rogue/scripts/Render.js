@@ -19,6 +19,7 @@ export default class Render {
 
     this.scene = null;
     this.lights = [];
+    this.lightTarget = null;
 
     this.camera = null;
     this.fov = 75;
@@ -51,11 +52,17 @@ export default class Render {
     );
 
     // Reset light positions
+    this.lightTarget.position.set(
+      this._game.world.map.width / 2,
+      this._game.world.map.height / 2,
+      0
+    );
     this.lights[0].position.set(
-      this.camera.position.x,
-      this.camera.position.y,
+      this._game.world.map.width / 2,
+      this._game.world.map.height / 2,
       150
     );
+
     this.lights[1].position.set(
       this._game.world.player.position.x,
       this._game.world.player.position.y,
@@ -76,6 +83,8 @@ export default class Render {
         flatShading: true,
       });
       const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      plane.castShadow = false;
+      plane.receiveShadow = false;
       plane.position.x = floors[i].x;
       plane.position.y = floors[i].y;
       this.worldGroup.add(plane);
@@ -92,6 +101,8 @@ export default class Render {
       flatShading: true,
     });
     const box = new THREE.Mesh(boxGeometry, boxMaterial);
+    box.castShadow = false; //default is false
+    box.receiveShadow = false; //default
     this.playerGroup.add(box);
 
     const lineMaterial = new THREE.LineBasicMaterial({
@@ -142,7 +153,7 @@ export default class Render {
     this.lights[1].position.set(
       this._game.world.player.position.x,
       this._game.world.player.position.y,
-      3
+      2
     );
 
     this.playerGroup.rotateX(0.003 * dt);
@@ -200,11 +211,17 @@ export default class Render {
     // Scene
     this.scene = new THREE.Scene();
 
-    this.lights[0] = new THREE.PointLight(0x804000, 0.2, 0);
-    this.lights[1] = new THREE.PointLight(0xffff00, 5, 0, 0.01);
+    this.lightTarget = new THREE.Object3D();
+    this.scene.add(this.lightTarget);
+    this.lights[0] = new THREE.DirectionalLight(0xf0f0f0, 1);
+    //this.lights[0].castShadow = true;
     this.lights[0].position.set(0, 0, 75);
-    this.lights[1].position.set(20, 0, 0);
+    this.lights[0].target = this.lightTarget;
     this.scene.add(this.lights[0]);
+
+    this.lights[1] = new THREE.PointLight(0xffffff, 1, 0, 0.02);
+    //this.lights[1].castShadow = true;
+    this.lights[1].position.set(20, 0, 0);
     this.scene.add(this.lights[1]);
 
     // Camera
@@ -225,6 +242,7 @@ export default class Render {
     //this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setClearColor('#101010');
     //this.renderer.shadowMap.enabled = true;
+    //this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
