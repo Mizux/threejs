@@ -3,23 +3,187 @@ import Debug from './Debug.js';
 import Game from './Game.js';
 import * as THREE from './vendor/three.module.js';
 //import { OrbitControls } from './vendor/OrbitControls.js';
+import Vector2 from './Vector2.js';
+
+class Entity {
+  game = null;
+  position = null;
+  root = null;
+
+  constructor(game, position) {
+    console.assert(game instanceof Game, 'game must be of type Game');
+    this.game = game;
+
+    console.assert(
+      position instanceof Vector2,
+      'position must be of type Vector2'
+    );
+    this.position = position;
+
+    this.root = new THREE.Group();
+    this.root.position.set(position);
+    game.render.scene.add(this.root);
+  }
+
+  update(/*t, dt*/) {}
+
+  dispose() {
+    const meshes = [];
+    const lines = [];
+    this.root.traverse(function (object) {
+      if (object.isMesh) meshes.push(object);
+      if (object.isLine) lines.push(object);
+    });
+    for (let i = 0; i < meshes.length; i++) {
+      const mesh = meshes[i];
+      mesh.material.dispose();
+      mesh.geometry.dispose();
+    }
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      line.material.dispose();
+    }
+
+    this.game.render.scene.remove(this.root);
+    this.root = null;
+  }
+}
+class FloorEntity extends Entity {
+  constructor(game, position) {
+    super(game, position);
+
+    const planeGeometry = new THREE.PlaneGeometry(1, 1);
+    const planeMaterial = new THREE.MeshPhongMaterial({
+      color: 0x010101,
+      emissive: 0x101010,
+      flatShading: true,
+    });
+    this.plane = new THREE.Mesh(planeGeometry, planeMaterial);
+    this.plane.castShadow = false;
+    this.plane.receiveShadow = false;
+    this.root.add(this.plane);
+
+    this.root.position.x = position.x;
+    this.root.position.y = position.y;
+  }
+}
+
+class BoxEntity extends Entity {
+  constructor(game, position) {
+    super(game, position);
+
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const boxMaterial = new THREE.MeshPhongMaterial({
+      color: 0x000020,
+      emissive: 0x000020,
+      flatShading: true,
+    });
+    this.box = new THREE.Mesh(boxGeometry, boxMaterial);
+    this.box.castShadow = false;
+    this.box.receiveShadow = false;
+    this.root.add(this.box);
+
+    this.root.position.x = position.x;
+    this.root.position.y = position.y;
+  }
+}
+
+class PlayerEntity extends Entity {
+  constructor(game, position) {
+    super(game, position);
+
+    this.light = new THREE.PointLight(0xffffff, 1, 0, 0.02);
+    //this.light.castShadow = true;
+    this.light.position.set(0, 0, 2);
+    this.root.add(this.light);
+
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const boxMaterial = new THREE.MeshPhongMaterial({
+      color: 0x156289,
+      emissive: 0x072534,
+      flatShading: true,
+    });
+    this.box = new THREE.Mesh(boxGeometry, boxMaterial);
+    this.box.castShadow = false; //default is false
+    this.box.receiveShadow = false; //default
+    this.root.add(this.box);
+
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.5,
+    });
+    this.line = new THREE.LineSegments(boxGeometry, lineMaterial);
+    this.root.add(this.line);
+  }
+
+  update(t, dt) {
+    this.box.rotateX(0.003 * dt);
+    this.box.rotateY(0.005 * dt);
+    this.box.rotateZ(0.007 * dt);
+
+    this.line.rotateX(0.003 * dt);
+    this.line.rotateY(0.005 * dt);
+    this.line.rotateZ(0.007 * dt);
+
+    this.root.position.x = this.position.x;
+    this.root.position.y = this.position.y;
+  }
+}
+class MonsterEntity extends Entity {
+  constructor(game, position) {
+    super(game, position);
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+    const boxMaterial = new THREE.MeshPhongMaterial({
+      color: 0x008000,
+      emissive: 0x008000,
+      flatShading: true,
+    });
+    this.box = new THREE.Mesh(boxGeometry, boxMaterial);
+    this.box.castShadow = false; //default is false
+    this.box.receiveShadow = false; //default
+    this.root.add(this.box);
+  }
+
+  update(t, dt) {
+    this.box.rotateX(0.003 * dt);
+    this.box.rotateY(0.005 * dt);
+    this.box.rotateZ(0.007 * dt);
+
+    this.root.position.x = this.position.x;
+    this.root.position.y = this.position.y;
+  }
+}
+class State {
+  static STARTED = new State('STARTED');
+  static STOPPED = new State('STOPPED');
+  //static BOX = new MapItem('BOX');
+
+  constructor(name) {
+    this.name = name;
+    Object.freeze(this);
+  }
+}
 
 export default class Render {
+  #state = null;
   #debug = null;
   #prev = undefined;
   _game = null;
 
   #callback = null;
+  #entities = [];
 
   constructor(game) {
+    this.#state = State.STOPPED;
     this.#debug = new Debug();
 
     console.assert(game instanceof Game, 'game must be of type Game');
     this._game = game;
 
     this.scene = null;
-    this.lights = [];
     this.lightTarget = null;
+    this.light = null;
 
     this.camera = null;
     this.fov = 75;
@@ -39,84 +203,58 @@ export default class Render {
 
   // Control the rendering engine
   start() {
+    if (this.#state === State.STARTED) return;
+    else this.#state = State.STARTED;
+
     // Reset Camera position
-    this.camera.position.set(
-      this._game.world.map.width / 2,
-      this._game.world.map.height / 2,
-      64
-    );
-    this.camera.lookAt(
-      this._game.world.map.width / 2,
-      this._game.world.map.height / 2,
-      0
-    );
+    const map = this._game.world.map;
+    this.camera.position.set(map.width / 2, map.height / 2, 64);
+    this.camera.lookAt(map.width / 2, map.height / 2, 0);
 
     // Reset light positions
-    this.lightTarget.position.set(
-      this._game.world.map.width / 2,
-      this._game.world.map.height / 2,
-      0
-    );
-    this.lights[0].position.set(
-      this._game.world.map.width / 2,
-      this._game.world.map.height / 2,
-      150
-    );
-
-    this.lights[1].position.set(
-      this._game.world.player.position.x,
-      this._game.world.player.position.y,
-      10
+    this.lightTarget.position.set(map.width / 2, map.height / 2, 0);
+    this.light.position.set(
+      map.width / 2,
+      map.height / 2,
+      150 // max(w, h)/2 / tan(FOV/2)
     );
 
     // # Create World
-    this.worldGroup = new THREE.Group();
-    this.scene.add(this.worldGroup);
     // ## Create Floors
     const floors = this._game.world.map.floors();
-    //console.log(floors)
     for (let i = 0; i < floors.length; ++i) {
-      const planeGeometry = new THREE.PlaneGeometry(1, 1);
-      const planeMaterial = new THREE.MeshPhongMaterial({
-        color: 0x010101,
-        emissive: 0x101010,
-        flatShading: true,
-      });
-      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-      plane.castShadow = false;
-      plane.receiveShadow = false;
-      plane.position.x = floors[i].x;
-      plane.position.y = floors[i].y;
-      this.worldGroup.add(plane);
+      const floor = new FloorEntity(this._game, floors[i]);
+      this.#entities.push(floor);
     }
 
     // ## Create Player
-    this.playerGroup = new THREE.Group();
-    this.scene.add(this.playerGroup);
+    const player = new PlayerEntity(
+      this._game,
+      this._game.world.player.position
+    );
+    this.#entities.push(player);
 
-    const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-    const boxMaterial = new THREE.MeshPhongMaterial({
-      color: 0x156289,
-      emissive: 0x072534,
-      flatShading: true,
-    });
-    const box = new THREE.Mesh(boxGeometry, boxMaterial);
-    box.castShadow = false; //default is false
-    box.receiveShadow = false; //default
-    this.playerGroup.add(box);
+    // ## Create Mobs
+    const mobs = this._game.world.mobs;
+    for (let i = 0; i < mobs.length; ++i) {
+      const mob = new MonsterEntity(this._game, mobs[i].position);
+      this.#entities.push(mob);
+    }
 
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.5,
-    });
-    this.playerGroup.add(new THREE.LineSegments(boxGeometry, lineMaterial));
-    this.playerGroup.position.set(this._game.world.player.position);
+    // ## Create boxes
+    const boxes = this._game.world.boxes();
+    for (let i = 0; i < boxes.length; ++i) {
+      const box = new BoxEntity(this._game, boxes[i]);
+      this.#entities.push(box);
+    }
 
     this.#callback = requestAnimationFrame(this.update.bind(this));
   }
 
   stop() {
+    if (this.#state === State.STOPPED) return;
+    else this.#state = State.STOPPED;
+
     if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);
       this.#callback = null;
@@ -124,78 +262,21 @@ export default class Render {
     this.#prev = undefined;
 
     // cleanup objects
-    const meshes = [];
-    const lines = [];
-    this.scene.traverse(function (object) {
-      if (object.isMesh) meshes.push(object);
-      if (object.isLine) lines.push(object);
-    });
-    for (let i = 0; i < meshes.length; i++) {
-      const mesh = meshes[i];
-      mesh.material.dispose();
-      mesh.geometry.dispose();
-    }
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      line.material.dispose();
-    }
-    this.scene.remove(this.playerGroup);
-    this.scene.remove(this.worldGroup);
+    this.#entities.forEach((e) => e.dispose());
+    this.#entities.length = 0;
   }
 
   update(t) {
-    const dt = this.#getDeltaT(t);
-
-    //console.log(t);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
-    // Light
-    this.lights[1].position.set(
-      this._game.world.player.position.x,
-      this._game.world.player.position.y,
-      2
-    );
 
-    this.playerGroup.rotateX(0.003 * dt);
-    this.playerGroup.rotateY(0.005 * dt);
-    this.playerGroup.rotateZ(0.007 * dt);
-
-    this.playerGroup.position.x = this._game.world.player.position.x;
-    this.playerGroup.position.y = this._game.world.player.position.y;
+    //console.log(t);
+    const dt = this.#getDeltaT(t);
+    this.#entities.forEach((e) => e.update(t, dt));
 
     // Render the scene
     this.renderer.render(this.scene, this.camera);
     //this.controls.update();
-
-    /*
-    this.#display.clear();
-    for (const position of this._game.world.emptyCells()) {
-      this.#display.draw(
-        position.x,
-        position.y,
-        this.#worldItemToSprite('floor')
-      );
-    }
-    for (const position of this._game.world.boxes()) {
-      this.#display.draw(
-        position.x,
-        position.y,
-        this.#worldItemToSprite('box')
-      );
-    }
-    for (const position of this._game.world.mobs()) {
-      this.#display.draw(
-        position.x,
-        position.y,
-        this.#worldItemToSprite('mob')
-      );
-    }
-    this.#display.draw(
-      this._game.player().position.x,
-      this._game.player().position.y,
-      '@'
-    );
-    */
   }
 
   #getDeltaT(t) {
@@ -213,16 +294,11 @@ export default class Render {
 
     this.lightTarget = new THREE.Object3D();
     this.scene.add(this.lightTarget);
-    this.lights[0] = new THREE.DirectionalLight(0xf0f0f0, 1);
-    //this.lights[0].castShadow = true;
-    this.lights[0].position.set(0, 0, 75);
-    this.lights[0].target = this.lightTarget;
-    this.scene.add(this.lights[0]);
-
-    this.lights[1] = new THREE.PointLight(0xffffff, 1, 0, 0.02);
-    //this.lights[1].castShadow = true;
-    this.lights[1].position.set(20, 0, 0);
-    this.scene.add(this.lights[1]);
+    this.light = new THREE.DirectionalLight(0xf0f0f0, 1);
+    //this.light.castShadow = true;
+    this.light.position.set(0, 0, 75);
+    this.light.target = this.lightTarget;
+    this.scene.add(this.light);
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
@@ -241,6 +317,7 @@ export default class Render {
     //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     //this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setClearColor('#101010');
+
     //this.renderer.shadowMap.enabled = true;
     //this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
