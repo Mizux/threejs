@@ -1,8 +1,14 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
+import Game from './Game.js';
 import Actor from './Actor.js';
 import Vector2 from './Vector2.js';
 
 export default class Monster extends Actor {
+  /**
+   * @param {Game} game
+   * @param {Vector2} position
+   */
   constructor(game, position) {
     super(game, position);
   }

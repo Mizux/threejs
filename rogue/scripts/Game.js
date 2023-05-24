@@ -1,3 +1,4 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
 import Render from './Render.js';
 import InputHandler from './InputHandler.js';
@@ -14,13 +15,16 @@ class State {
 }
 
 export default class Game {
-  #state = null;
+  #state;
+  render;
 
   constructor(node = null) {
     this.#state = State.STOPPED;
     this.render = new Render(this);
-    if (node === null) document.body.appendChild(this.render.getNode());
-    else node.appendChild(this.render.getNode());
+    if (node === null)
+      document.body.appendChild(this.render.getNode());
+    else
+      node.appendChild(this.render.getNode());
 
     this.input = new InputHandler(this);
     this.scheduler = new ROT.Scheduler.Simple();

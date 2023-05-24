@@ -1,3 +1,4 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
 import Vector2 from './Vector2.js';
 import Game from './Game.js';
@@ -10,6 +11,7 @@ export class WorldItem {
   static BOX = new WorldItem('BOX');
   static MOB = new WorldItem('MOB');
 
+  /**@param {string} name - Name of the Item.*/
   constructor(name) {
     this.name = name;
     Object.freeze(this);
@@ -19,6 +21,7 @@ export class WorldItem {
 export class World {
   #game = null;
 
+  /**@param {Game} game*/
   constructor(game, width, height) {
     console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;

@@ -1,9 +1,14 @@
+// @ts-check
 export default class Vector2 {
+  x;
+  y;
+
   constructor(x = 0, y = 0) {
-    Vector2.prototype.isVector2 = true;
+    //Vector2.prototype.isVector2 = true;
 
     this.x = x;
     this.y = y;
+    this.isVector2 = true;
   }
 
   get width() {
@@ -22,6 +27,10 @@ export default class Vector2 {
     this.y = value;
   }
 
+  /**
+   * @param {number} x
+   * @param {number} y
+   */
   set(x, y) {
     this.x = x;
     this.y = y;
@@ -29,6 +38,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} scalar
+   */
   setScalar(scalar) {
     this.x = scalar;
     this.y = scalar;
@@ -36,18 +48,28 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} x
+   */
   setX(x) {
     this.x = x;
 
     return this;
   }
 
+  /**
+   * @param {number} y
+   */
   setY(y) {
     this.y = y;
 
     return this;
   }
 
+  /**
+   * @param {string} index
+   * @param {number} value
+   */
   setComponent(index, value) {
     switch (index) {
     case 0:
@@ -63,6 +85,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {string} index
+   */
   getComponent(index) {
     switch (index) {
     case 0:
@@ -78,6 +103,9 @@ export default class Vector2 {
     return new this.constructor(this.x, this.y);
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   copy(v) {
     this.x = v.x;
     this.y = v.y;
@@ -85,6 +113,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   add(v) {
     this.x += v.x;
     this.y += v.y;
@@ -92,6 +123,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} s
+   */
   addScalar(s) {
     this.x += s;
     this.y += s;
@@ -99,6 +133,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: any; y: any; }} a
+   * @param {{ x: any; y: any; }} b
+   */
   addVectors(a, b) {
     this.x = a.x + b.x;
     this.y = a.y + b.y;
@@ -106,6 +144,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   * @param {number} s
+   */
   addScaledVector(v, s) {
     this.x += v.x * s;
     this.y += v.y * s;
@@ -113,6 +155,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   sub(v) {
     this.x -= v.x;
     this.y -= v.y;
@@ -120,6 +165,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} s
+   */
   subScalar(s) {
     this.x -= s;
     this.y -= s;
@@ -127,6 +175,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} a
+   * @param {{ x: number; y: number; }} b
+   */
   subVectors(a, b) {
     this.x = a.x - b.x;
     this.y = a.y - b.y;
@@ -134,6 +186,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   multiply(v) {
     this.x *= v.x;
     this.y *= v.y;
@@ -141,6 +196,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} scalar
+   */
   multiplyScalar(scalar) {
     this.x *= scalar;
     this.y *= scalar;
@@ -148,6 +206,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   divide(v) {
     this.x /= v.x;
     this.y /= v.y;
@@ -155,10 +216,16 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} scalar
+   */
   divideScalar(scalar) {
     return this.multiplyScalar(1 / scalar);
   }
 
+  /**
+   * @param {{ elements: any; }} m
+   */
   applyMatrix3(m) {
     const x = this.x,
       y = this.y;
@@ -170,6 +237,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   min(v) {
     this.x = Math.min(this.x, v.x);
     this.y = Math.min(this.y, v.y);
@@ -177,6 +247,9 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   max(v) {
     this.x = Math.max(this.x, v.x);
     this.y = Math.max(this.y, v.y);
@@ -184,6 +257,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} min
+   * @param {{ x: number; y: number; }} max
+   */
   clamp(min, max) {
     // assumes min < max, componentwise
 
@@ -193,6 +270,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} minVal
+   * @param {number} maxVal
+   */
   clampScalar(minVal, maxVal) {
     this.x = Math.max(minVal, Math.min(maxVal, this.x));
     this.y = Math.max(minVal, Math.min(maxVal, this.y));
@@ -200,6 +281,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {number} min
+   * @param {number} max
+   */
   clampLength(min, max) {
     const length = this.length();
 
@@ -243,10 +328,16 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   dot(v) {
     return this.x * v.x + this.y * v.y;
   }
 
+  /**
+   * @param {{ y: number; x: number; }} v
+   */
   cross(v) {
     return this.x * v.y - this.y * v.x;
   }
@@ -275,24 +366,40 @@ export default class Vector2 {
     return angle;
   }
 
+  /**
+   * @param {any} v
+   */
   distanceTo(v) {
     return Math.sqrt(this.distanceToSquared(v));
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   distanceToSquared(v) {
     const dx = this.x - v.x,
       dy = this.y - v.y;
     return dx * dx + dy * dy;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   manhattanDistanceTo(v) {
     return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
   }
 
+  /**
+   * @param {any} length
+   */
   setLength(length) {
     return this.normalize().multiplyScalar(length);
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   * @param {number} alpha
+   */
   lerp(v, alpha) {
     this.x += (v.x - this.x) * alpha;
     this.y += (v.y - this.y) * alpha;
@@ -300,6 +407,11 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v1
+   * @param {{ x: number; y: number; }} v2
+   * @param {number} alpha
+   */
   lerpVectors(v1, v2, alpha) {
     this.x = v1.x + (v2.x - v1.x) * alpha;
     this.y = v1.y + (v2.y - v1.y) * alpha;
@@ -307,10 +419,16 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} v
+   */
   equals(v) {
     return v.x === this.x && v.y === this.y;
   }
 
+  /**
+   * @param {number[]} array
+   */
   fromArray(array, offset = 0) {
     this.x = array[offset];
     this.y = array[offset + 1];
@@ -325,6 +443,10 @@ export default class Vector2 {
     return array;
   }
 
+  /**
+   * @param {{ getX: (arg0: any) => number; getY: (arg0: any) => number; }} attribute
+   * @param {any} index
+   */
   fromBufferAttribute(attribute, index) {
     this.x = attribute.getX(index);
     this.y = attribute.getY(index);
@@ -332,6 +454,10 @@ export default class Vector2 {
     return this;
   }
 
+  /**
+   * @param {{ x: number; y: number; }} center
+   * @param {number} angle
+   */
   rotateAround(center, angle) {
     const c = Math.cos(angle),
       s = Math.sin(angle);

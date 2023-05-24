@@ -1,23 +1,24 @@
+// @ts-check
+// eslint-disable-next-line no-unused-vars
+import Game from './Game.js';
+// eslint-disable-next-line no-unused-vars
+import Vector2 from './Vector2.js';
 //import * as ROT from './vendor/rot.js';
 import Debug from './Debug.js';
-import Game from './Game.js';
 import * as THREE from './vendor/three.module.js';
 //import { OrbitControls } from './vendor/OrbitControls.js';
-import Vector2 from './Vector2.js';
 
 class Entity {
-  game = null;
-  position = null;
-  root = null;
+  game;
+  position;
+  root;
 
+  /**
+   * @param {Game} game
+   * @param {Vector2} position
+   */
   constructor(game, position) {
-    console.assert(game instanceof Game, 'game must be of type Game');
     this.game = game;
-
-    console.assert(
-      position instanceof Vector2,
-      'position must be of type Vector2'
-    );
     this.position = position;
 
     this.root = new THREE.Group();
@@ -28,11 +29,15 @@ class Entity {
   update(/*t, dt*/) {}
 
   dispose() {
+    /** @type {THREE.Mesh[]} */
     const meshes = [];
+    /** @type {THREE.Line[]} */
     const lines = [];
-    this.root.traverse(function (object) {
-      if (object.isMesh) meshes.push(object);
-      if (object.isLine) lines.push(object);
+    this.root.traverse((/** @type {THREE.Object3D} */ object) => {
+      if (object instanceof THREE.Mesh)
+        meshes.push(object);
+      if (object instanceof THREE.Line)
+        lines.push(object);
     });
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i];
@@ -49,6 +54,10 @@ class Entity {
   }
 }
 class FloorEntity extends Entity {
+  /**
+   * @param {Game} game
+   * @param {Vector2} position
+   */
   constructor(game, position) {
     super(game, position);
 
@@ -69,6 +78,10 @@ class FloorEntity extends Entity {
 }
 
 class BoxEntity extends Entity {
+  /**
+   * @param {Game} game
+   * @param {Vector2} position
+   */
   constructor(game, position) {
     super(game, position);
 
@@ -90,6 +103,10 @@ class BoxEntity extends Entity {
 }
 
 class PlayerEntity extends Entity {
+  /**
+   * @param {Game} game
+   * @param {Vector2} position
+   */
   constructor(game, position) {
     super(game, position);
 
@@ -121,6 +138,10 @@ class PlayerEntity extends Entity {
     this.root.position.z = 0.7;
   }
 
+  /**
+   * @param {any} t
+   * @param {number} dt
+   */
   update(t, dt) {
     this.box.rotateX(0.003 * dt);
     this.box.rotateY(0.005 * dt);
@@ -135,6 +156,10 @@ class PlayerEntity extends Entity {
   }
 }
 class MonsterEntity extends Entity {
+  /**
+   * @param {Game} game
+   * @param {Vector2} position
+   */
   constructor(game, position) {
     super(game, position);
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
@@ -152,6 +177,10 @@ class MonsterEntity extends Entity {
     this.root.position.z = 0.5;
   }
 
+  /**
+   * @param {number} t
+   * @param {number} dt
+   */
   update(t, dt) {
     this.box.rotateX(0.003 * dt);
     this.box.rotateY(0.005 * dt);
@@ -165,6 +194,8 @@ class State {
   static STARTED = new State('STARTED');
   static PAUSED = new State('PAUSED');
   static STOPPED = new State('STOPPED');
+  
+  /** @param {string} name*/
   constructor(name) {
     this.name = name;
     Object.freeze(this);
@@ -172,34 +203,72 @@ class State {
 }
 
 export default class Render {
-  #state = null;
-  #debug = null;
-  #prev = undefined;
+  #state;
+  #debug;
 
-  #callback = null;
+  game;
+
+  scene;
+  lightTarget;
+  light;
+
+  camera;
+  fov;
+  nearPlane;
+  farPlane;
+
+  #prev;
+
+  #callback;
   #entities = [];
 
+  /** @param {Game} game*/
   constructor(game) {
     this.#state = State.STOPPED;
+    this.#callback = null;
     this.#debug = new Debug();
 
-    console.assert(game instanceof Game, 'game must be of type Game');
     this.game = game;
-
-    this.scene = null;
-    this.lightTarget = null;
-    this.light = null;
-
-    this.camera = null;
+    
+    // Scene
+    this.scene = new THREE.Scene();
+    this.lightTarget = new THREE.Object3D();
+    this.scene.add(this.lightTarget);
+    this.light = new THREE.DirectionalLight(0xf0f0f0, 2);
+    //this.light.castShadow = true;
+    this.light.position.set(0, 0, 75);
+    this.light.target = this.lightTarget;
+    this.scene.add(this.light);
+    
+    // Camera
     this.fov = 75;
     this.nearPlane = 1;
     this.farPlane = 1000;
+    this.camera = new THREE.PerspectiveCamera(
+      this.fov,
+      window.innerWidth / window.innerHeight,
+      this.nearPlane,
+      this.farPlane
+    );
+    this.camera.position.set(0, 0, 75);
+    this.camera.lookAt(0.0, 0.0, 0.0);
 
-    this.renderer = null;
+    // Create a renderer with Antialiasing
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    //this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.setClearColor('#101010');
+
+    //this.renderer.shadowMap.enabled = true;
+    //this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
     // NOTE: Additional components.
-    this.controls = null;
+    //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
-    this.#initialize();
+    // if window resizes
+    window.addEventListener('resize', () => this.#onWindowResize(), false);
   }
 
   getNode() {
@@ -279,6 +348,7 @@ export default class Render {
     this.#entities.length = 0;
   }
 
+  /** @param {number} t*/
   update(t) {
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
@@ -292,6 +362,7 @@ export default class Render {
     //this.controls.update();
   }
 
+  /** @param {number} t*/
   #getDeltaT(t) {
     if (this.#prev === undefined) {
       this.#prev = t;
@@ -299,45 +370,6 @@ export default class Render {
     const dt = t - this.#prev;
     this.#prev = t;
     return dt;
-  }
-
-  #initialize() {
-    // Scene
-    this.scene = new THREE.Scene();
-
-    this.lightTarget = new THREE.Object3D();
-    this.scene.add(this.lightTarget);
-    this.light = new THREE.DirectionalLight(0xf0f0f0, 2);
-    //this.light.castShadow = true;
-    this.light.position.set(0, 0, 75);
-    this.light.target = this.lightTarget;
-    this.scene.add(this.light);
-
-    // Camera
-    this.camera = new THREE.PerspectiveCamera(
-      this.fov,
-      window.innerWidth / window.innerHeight,
-      this.nearPlane,
-      this.farPlane
-    );
-    this.camera.position.set(0, 0, 75);
-    this.camera.lookAt(0.0, 0.0, 0.0);
-
-    // Create a renderer with Antialiasing
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setPixelRatio(window.devicePixelRatio);
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    //this.renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer.setClearColor('#101010');
-
-    //this.renderer.shadowMap.enabled = true;
-    //this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
-    // if window resizes
-    window.addEventListener('resize', () => this.#onWindowResize(), false);
   }
 
   #onWindowResize() {

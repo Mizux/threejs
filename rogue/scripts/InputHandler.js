@@ -1,11 +1,13 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
 import Game from './Game.js';
 
 export default class InputHandler {
-  #game = null;
-  #keyMap = null;
-  #subscribers = null;
+  #game;
+  #keyMap;
+  #subscribers;
 
+  /** @param {Game} game*/
   constructor(game) {
     console.assert(game instanceof Game, 'game must be of type Game');
     this.#game = game;
@@ -26,6 +28,9 @@ export default class InputHandler {
     document.addEventListener('keydown', this, false);
   }
 
+  /**
+   * @param {{ keyCode: any; preventDefault: () => void; }} e
+   */
   handleEvent(e) {
     //console.log('handleEvent: ', e);
     if (this.#subscribers.length === 0) {return;}
@@ -39,12 +44,14 @@ export default class InputHandler {
     e.preventDefault(); // prevent the default action (scroll / move caret)
   }
 
+  /** @param {{ handleEvent: any; }} subscriber*/
   subscribe(subscriber) {
     console.assert(typeof subscriber.handleEvent === 'function', 'subscriber don\'t provide a handleEvent()');
     this.unsubscribe(subscriber); // avoid multi-subscriptions
     this.#subscribers.push(subscriber);
   }
 
+  /** @param {any} subscriber */
   unsubscribe(subscriber) {
     this.#subscribers = this.#subscribers.filter(it => it !== subscriber);
   }

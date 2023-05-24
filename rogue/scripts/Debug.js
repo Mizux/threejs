@@ -1,9 +1,10 @@
+// @ts-check
 import Stats from './vendor/stats.module.js';
 
 export default class Debug {
-  #fps = null;
-  #mb = null;
-  #ms = null;
+  #fps;
+  #mb;
+  #ms;
 
   constructor() {
     this.#fps = new Stats();
