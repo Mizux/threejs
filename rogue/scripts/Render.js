@@ -26,7 +26,12 @@ class Entity {
     game.render.scene.add(this.root);
   }
 
-  update(/*t, dt*/) {}
+  /**
+   * @param {number} t
+   * @param {number} dt
+   */
+  // eslint-disable-next-line no-unused-vars
+  update(t, dt) {}
 
   dispose() {
     /** @type {THREE.Mesh[]} */
@@ -50,7 +55,6 @@ class Entity {
     }
 
     this.game.render.scene.remove(this.root);
-    this.root = null;
   }
 }
 class FloorEntity extends Entity {
