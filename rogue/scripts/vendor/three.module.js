@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * @license
  * Copyright 2010-2023 Three.js Authors
@@ -7475,6 +7476,10 @@ const _addedEvent = { type: 'added' };
 const _removedEvent = { type: 'removed' };
 
 class Object3D extends EventDispatcher {
+	position;
+	rotation;
+	quaternion;
+	scale;
 
 	constructor() {
 

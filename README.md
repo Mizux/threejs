@@ -1,7 +1,7 @@
 [![CI](https://github.com/Mizux/threejs/actions/workflows/ci.yml/badge.svg)](https://github.com/Mizux/threejs/actions/workflows/ci.yml)
 
 # Introduction
-My own samples on ThreeJS
+My own PoC using ThreeJS
 
 # Host Setup
 In your `.rc` you can add these line to have *user* global install:
