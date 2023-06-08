@@ -8,6 +8,7 @@ class State {
   static STOPPED = new State('STOPPED');
   //static BOX = new MapItem('BOX');
 
+  /** @arg name {string} */
   constructor(name) {
     this.name = name;
     Object.freeze(this);
