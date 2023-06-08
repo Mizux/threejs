@@ -1,4 +1,5 @@
 // @ts-check
+/** @constructor */
 const Stats = function () {
   let mode = 0;
 
