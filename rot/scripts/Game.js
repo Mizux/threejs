@@ -1,3 +1,4 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
 import Render from './Render.js';
 import InputHandler from './InputHandler.js';
@@ -14,8 +15,8 @@ class State {
 }
 
 export default class Game {
-  #state = null;
-  #render = null;
+  #state;
+  #render;
 
   constructor(node = null) {
     this.#state = State.STOPPED;

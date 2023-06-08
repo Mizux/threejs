@@ -1,3 +1,4 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
 import Vector2 from './Vector2.js';
 

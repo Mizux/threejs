@@ -1,9 +1,10 @@
+// @ts-check
 import Game from './Game.js';
 import Vector2 from './Vector2.js';
 
 export default class Actor {
-  _game = null;
-  position = null;
+  _game;
+  position;
 
   constructor(game, position) {
     console.assert(game instanceof Game, 'game must be of type Game');

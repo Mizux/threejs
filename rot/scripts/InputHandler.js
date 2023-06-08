@@ -1,10 +1,11 @@
+// @ts-check
 //import * as ROT from './vendor/rot.js';
 import Game from './Game.js';
 
 export default class InputHandler {
-  #game = null;
-  #keyMap = null;
-  #subscribers = null;
+  #game;
+  #keyMap;
+  #subscribers;
 
   constructor(game) {
     console.assert(game instanceof Game, 'game must be of type Game');
