@@ -1,172 +1,182 @@
 // @ts-check
-/** @constructor */
-const Stats = function () {
-  let mode = 0;
+class Stats {
+  mode;
+  dom;
+  #beginTime;
+  #prevTime;
+  #frames;
+  #fpsPanel;
+  #msPanel;
+  #memPanel;
 
-  const container = document.createElement("div");
-  container.style.cssText =
-    "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
-  container.addEventListener(
-    "click",
-    function (event) {
-      event.preventDefault();
-      showPanel(++mode % container.children.length);
-    },
-    false
-  );
+  constructor() {
+    this.mode = 0;
 
-  //
-  function addPanel(panel) {
-    container.appendChild(panel.dom);
+    this.dom = document.createElement("div");
+    this.dom.style.cssText =
+      "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
+    this.dom.addEventListener(
+      "click",
+      (event) => {
+        event.preventDefault();
+        this.showPanel(++this.mode % this.dom.children.length);
+      },
+      false
+    );
+
+    //
+    this.#beginTime = (performance || Date).now()
+    this.#prevTime = this.#beginTime
+    this.#frames = 0;
+
+    this.#fpsPanel = this.addPanel(new Panel("FPS", "#0ff", "#002"));
+    this.#msPanel = this.addPanel(new Panel("MS", "#0f0", "#020"));
+
+    if (self.performance?.memory) {
+      this.#memPanel = this.addPanel(new Panel("MB", "#f08", "#201"));
+    }
+    this.showPanel(0);
+  }
+
+  /** @param panel {Panel} */
+  addPanel(panel) {
+    this.dom.appendChild(panel.canvas);
     return panel;
   }
 
-  function showPanel(id) {
-    for (var i = 0; i < container.children.length; i++) {
-      container.children[i].style.display = i === id ? "block" : "none";
+  /** @param id {number} */
+  showPanel(id) {
+    for (var i = 0; i < this.dom.children.length; i++) {
+      this.dom.children[i].style.display = i === id ? "block" : "none";
     }
-
-    mode = id;
+    this.mode = id;
   }
 
-  //
-  var beginTime = (performance || Date).now(),
-    prevTime = beginTime,
-    frames = 0;
-
-  var fpsPanel = addPanel(new Stats.Panel("FPS", "#0ff", "#002"));
-  var msPanel = addPanel(new Stats.Panel("MS", "#0f0", "#020"));
-
-  if (self.performance && self.performance.memory) {
-    var memPanel = addPanel(new Stats.Panel("MB", "#f08", "#201"));
+  begin() {
+    this.#beginTime = (performance || Date).now();
   }
 
-  showPanel(0);
+  end() {
+    this.#frames++;
+    const time = (performance || Date).now();
+    this.#msPanel.update(time - this.#beginTime, 200);
+    if (time >= this.#prevTime + 1000) {
+      this.#fpsPanel.update((this.#frames * 1000) / (time - this.#prevTime), 100);
+      this.#prevTime = time;
+      this.#frames = 0;
 
-  return {
-    REVISION: 16,
-
-    dom: container,
-
-    addPanel: addPanel,
-    showPanel: showPanel,
-
-    begin: function () {
-      beginTime = (performance || Date).now();
-    },
-
-    end: function () {
-      frames++;
-
-      var time = (performance || Date).now();
-
-      msPanel.update(time - beginTime, 200);
-
-      if (time >= prevTime + 1000) {
-        fpsPanel.update((frames * 1000) / (time - prevTime), 100);
-
-        prevTime = time;
-        frames = 0;
-
-        if (memPanel) {
-          var memory = performance.memory;
-          memPanel.update(
-            memory.usedJSHeapSize / 1048576,
-            memory.jsHeapSizeLimit / 1048576
-          );
-        }
+      if (this.#memPanel) {
+        const memory = performance.memory;
+        this.#memPanel.update(
+          memory.usedJSHeapSize / 1048576,
+          memory.jsHeapSizeLimit / 1048576
+        );
       }
+    }
+    return time;
+  }
 
-      return time;
-    },
-
-    update: function () {
-      beginTime = this.end();
-    },
-
-    // Backwards Compatibility
-
-    domElement: container,
-    setMode: showPanel,
-  };
+  update() {
+    this.#beginTime = this.end();
+  }
 };
 
-Stats.Panel = function (name, fg, bg) {
-  var min = Infinity,
-    max = 0,
-    round = Math.round;
-  var PR = round(window.devicePixelRatio || 1);
+class Panel {
+  static PR = Math.round(window.devicePixelRatio || 1);
+  static WIDTH = 80 * Panel.PR;
+  static HEIGHT = 48 * Panel.PR
+  static TEXT_X = 3 * Panel.PR;
+  static TEXT_Y = 2 * Panel.PR
+  static GRAPH_X = 3 * Panel.PR
+  static GRAPH_Y = 15 * Panel.PR
+  static GRAPH_WIDTH = 74 * Panel.PR
+  static GRAPH_HEIGHT = 30 * Panel.PR;
 
-  var WIDTH = 80 * PR,
-    HEIGHT = 48 * PR,
-    TEXT_X = 3 * PR,
-    TEXT_Y = 2 * PR,
-    GRAPH_X = 3 * PR,
-    GRAPH_Y = 15 * PR,
-    GRAPH_WIDTH = 74 * PR,
-    GRAPH_HEIGHT = 30 * PR;
+  /**
+   * @param name {string}
+   * @param fg {string}
+   * @param bg {string} */
+  constructor(name, fg, bg) {
+    this.name = name;
+    this.fg = fg;
+    this.bg = bg;
 
-  var canvas = document.createElement("canvas");
-  canvas.width = WIDTH;
-  canvas.height = HEIGHT;
-  canvas.style.cssText = "width:80px;height:48px";
+    this.min = Infinity
+    this.max = 0
 
-  var context = canvas.getContext("2d");
-  context.font = "bold " + 9 * PR + "px Helvetica,Arial,sans-serif";
-  context.textBaseline = "top";
+    this.canvas = document.createElement("canvas");
+    this.canvas.width = Panel.WIDTH;
+    this.canvas.height = Panel.HEIGHT;
+    this.canvas.style.cssText = "width:80px;height:48px";
 
-  context.fillStyle = bg;
-  context.fillRect(0, 0, WIDTH, HEIGHT);
+    this.context = this.canvas.getContext("2d")
+    if (this.context === null) {
+      console.error("Can't build context 2d!");
+      return;
+    }
+    this.context.font = "bold " + 9 * Panel.PR + "px Helvetica,Arial,sans-serif";
+    this.context.textBaseline = "top";
 
-  context.fillStyle = fg;
-  context.fillText(name, TEXT_X, TEXT_Y);
-  context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+    this.context.fillStyle = this.bg;
+    this.context.fillRect(0, 0, Panel.WIDTH, Panel.HEIGHT);
 
-  context.fillStyle = bg;
-  context.globalAlpha = 0.9;
-  context.fillRect(GRAPH_X, GRAPH_Y, GRAPH_WIDTH, GRAPH_HEIGHT);
+    this.context.fillStyle = this.fg;
+    this.context.fillText(this.name, Panel.TEXT_X, Panel.TEXT_Y);
+    this.context.fillRect(Panel.GRAPH_X, Panel.GRAPH_Y, Panel.GRAPH_WIDTH, Panel.GRAPH_HEIGHT);
 
-  return {
-    dom: canvas,
+    this.context.fillStyle = this.bg;
+    this.context.globalAlpha = 0.9;
+    this.context.fillRect(Panel.GRAPH_X, Panel.GRAPH_Y, Panel.GRAPH_WIDTH, Panel.GRAPH_HEIGHT);
+  }
 
-    update: function (value, maxValue) {
-      min = Math.min(min, value);
-      max = Math.max(max, value);
+  /**
+   * @param value {number}
+   * @param maxValue {number}
+   */
+  update(value, maxValue) {
+    this.min = Math.min(this.min, value);
+    this.max = Math.max(this.max, value);
 
-      context.fillStyle = bg;
-      context.globalAlpha = 1;
-      context.fillRect(0, 0, WIDTH, GRAPH_Y);
-      context.fillStyle = fg;
-      context.fillText(
-        round(value) + " " + name + " (" + round(min) + "-" + round(max) + ")",
-        TEXT_X,
-        TEXT_Y
-      );
+    if (this.context === null)
+      return;
+    this.context.fillStyle = this.bg;
+    this.context.globalAlpha = 1;
+    this.context.fillRect(0, 0, Panel.WIDTH, Panel.GRAPH_Y);
+    this.context.fillStyle = this.fg;
+    this.context.fillText(
+      Math.round(value) + " " + this.name +
+      " (" + Math.round(this.min) + "-" + Math.round(this.max) + ")",
+      Panel.TEXT_X,
+      Panel.TEXT_Y
+    );
 
-      context.drawImage(
-        canvas,
-        GRAPH_X + PR,
-        GRAPH_Y,
-        GRAPH_WIDTH - PR,
-        GRAPH_HEIGHT,
-        GRAPH_X,
-        GRAPH_Y,
-        GRAPH_WIDTH - PR,
-        GRAPH_HEIGHT
-      );
+    this.context.drawImage(
+      this.canvas,
+      Panel.GRAPH_X + Panel.PR,
+      Panel.GRAPH_Y,
+      Panel.GRAPH_WIDTH - Panel.PR,
+      Panel.GRAPH_HEIGHT,
+      Panel.GRAPH_X,
+      Panel.GRAPH_Y,
+      Panel.GRAPH_WIDTH - Panel.PR,
+      Panel.GRAPH_HEIGHT
+    );
 
-      context.fillRect(GRAPH_X + GRAPH_WIDTH - PR, GRAPH_Y, PR, GRAPH_HEIGHT);
+    this.context.fillRect(
+      Panel.GRAPH_X + Panel.GRAPH_WIDTH - Panel.PR,
+      Panel.GRAPH_Y,
+      Panel.PR,
+      Panel.GRAPH_HEIGHT);
 
-      context.fillStyle = bg;
-      context.globalAlpha = 0.9;
-      context.fillRect(
-        GRAPH_X + GRAPH_WIDTH - PR,
-        GRAPH_Y,
-        PR,
-        round((1 - value / maxValue) * GRAPH_HEIGHT)
-      );
-    },
-  };
+    this.context.fillStyle = this.bg;
+    this.context.globalAlpha = 0.9;
+    this.context.fillRect(
+      Panel.GRAPH_X + Panel.GRAPH_WIDTH - Panel.PR,
+      Panel.GRAPH_Y,
+      Panel.PR,
+      Math.round((1 - value / maxValue) * Panel.GRAPH_HEIGHT)
+    );
+  }
 };
 
 export default Stats;
