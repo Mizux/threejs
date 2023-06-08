@@ -2,6 +2,8 @@
 import Stats from './vendor/stats.module.js';
 import * as THREE from './vendor/three.module.js';
 import { CSS3DRenderer, CSS3DObject } from './vendor/CSS3DRenderer.js';
+import { TrackballControls } from './vendor/TrackballControls.js';
+import TWEEN from './vendor/tween.module.js';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
@@ -220,46 +222,57 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 // Append Renderer to DOM
 document.getElementById('container').appendChild(renderer.domElement);
 
+const controls = new TrackballControls(camera, renderer.domElement);
+controls.minDistance = 500;
+controls.maxDistance = 6000;
+controls.addEventListener('change', render);
+
 const buttonTable = document.getElementById('table');
 buttonTable.addEventListener('click', function () {
-  transform(targets.table);
+  transform(targets.table, 2000);
 });
 
 const buttonSphere = document.getElementById('sphere');
 buttonSphere.addEventListener('click', function () {
-  transform(targets.sphere);
+  transform(targets.sphere, 2000);
 });
 
 const buttonHelix = document.getElementById('helix');
 buttonHelix.addEventListener('click', function () {
-  transform(targets.helix);
+  transform(targets.helix, 2000);
 });
 
 const buttonGrid = document.getElementById('grid');
 buttonGrid.addEventListener('click', function () {
-  transform(targets.grid);
+  transform(targets.grid, 2000);
 });
 
-transform(targets.table)
+transform(targets.table, 2000)
 
 // EventListener
 window.addEventListener('resize', onWindowResize);
 
-function transform(targets) {
+function transform(targets, duration) {
+  TWEEN.removeAll();
   for (let i = 0; i < objects.length; i++) {
     const object = objects[i];
     const target = targets[i];
 
-    object.position.x = target.position.x;
-    object.position.y = target.position.y;
-    object.position.z = target.position.z;
+    new TWEEN.Tween(object.position)
+      .to({ x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration)
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start();
 
-    object.rotation.x = target.rotation.x;
-    object.rotation.y = target.rotation.y;
-    object.rotation.z = target.rotation.z;
-
+    new TWEEN.Tween(object.rotation)
+      .to({ x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration)
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .start();
   }
-  //render();
+
+  new TWEEN.Tween(this)
+    .to({}, duration * 2)
+    .onUpdate(render)
+    .start();
 }
 
 function onWindowResize() {
@@ -273,8 +286,10 @@ function onWindowResize() {
 // Render Loop
 function animate() {
   requestAnimationFrame(animate);
+
   stats.begin();
-  render();
+  TWEEN.update();
+  controls.update();
   stats.end();
 }
 
