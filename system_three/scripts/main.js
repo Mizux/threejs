@@ -1,3 +1,4 @@
+// @ts-check
 import Stats from './vendor/stats.module.js';
 import * as THREE from './vendor/three.module.js';
 
@@ -21,21 +22,21 @@ function animate(t) {
 function init() {
   stats1 = new Stats();
   stats1.showPanel(0); // Panel 0 = fps
-  stats1.domElement.style.cssText = 'position:absolute;top:0px;left:0px;';
-  stats1.domElement.style.display = 'inline';
-  document.body.appendChild(stats1.domElement);
+  stats1.dom.style.cssText = 'position:absolute;top:0px;left:0px;';
+  stats1.dom.style.display = 'inline';
+  document.body.appendChild(stats1.dom);
 
   stats2 = new Stats();
   stats2.showPanel(1); // Panel 1 = ms
-  stats2.domElement.style.cssText = 'position:absolute;top:0px;left:80px;';
-  stats2.domElement.style.display = 'none';
-  document.body.appendChild(stats2.domElement);
+  stats2.dom.style.cssText = 'position:absolute;top:0px;left:80px;';
+  stats2.dom.style.display = 'none';
+  document.body.appendChild(stats2.dom);
 
   stats3 = new Stats();
   stats3.showPanel(2); // Panel 2 = mb
-  stats3.domElement.style.cssText = 'position:absolute;top:0px;left:160px;';
-  stats3.domElement.style.display = 'none';
-  document.body.appendChild(stats3.domElement);
+  stats3.dom.style.cssText = 'position:absolute;top:0px;left:160px;';
+  stats3.dom.style.display = 'none';
+  document.body.appendChild(stats3.dom);
 
   // Create an empty scene
   scene = new THREE.Scene();
