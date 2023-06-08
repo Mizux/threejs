@@ -149,12 +149,12 @@ for (let i = 0; i < table.length; i += 5) {
 
   const number = document.createElement('div');
   number.className = 'number';
-  number.textContent = (i / 5) + 1;
+  number.textContent = ((i / 5) + 1).toString();
   element.appendChild(number);
 
   const symbol = document.createElement('div');
   symbol.className = 'symbol';
-  symbol.textContent = table[i];
+  symbol.textContent = table[i].toString();
   element.appendChild(symbol);
 
   const details = document.createElement('div');
@@ -220,7 +220,7 @@ for (let i = 0; i < objects.length; i++) {
 const renderer = new CSS3DRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 // Append Renderer to DOM
-document.getElementById('container').appendChild(renderer.domElement);
+document?.getElementById('container')?.appendChild(renderer.domElement);
 
 const controls = new TrackballControls(camera, renderer.domElement);
 controls.minDistance = 500;
@@ -228,22 +228,22 @@ controls.maxDistance = 6000;
 controls.addEventListener('change', render);
 
 const buttonTable = document.getElementById('table');
-buttonTable.addEventListener('click', function () {
+buttonTable?.addEventListener('click', function () {
   transform(targets.table, 2000);
 });
 
 const buttonSphere = document.getElementById('sphere');
-buttonSphere.addEventListener('click', function () {
+buttonSphere?.addEventListener('click', function () {
   transform(targets.sphere, 2000);
 });
 
 const buttonHelix = document.getElementById('helix');
-buttonHelix.addEventListener('click', function () {
+buttonHelix?.addEventListener('click', function () {
   transform(targets.helix, 2000);
 });
 
 const buttonGrid = document.getElementById('grid');
-buttonGrid.addEventListener('click', function () {
+buttonGrid?.addEventListener('click', function () {
   transform(targets.grid, 2000);
 });
 
