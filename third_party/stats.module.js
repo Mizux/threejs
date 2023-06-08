@@ -1,6 +1,6 @@
 // @ts-check
 class Stats {
-  mode;
+  mode = 0;
   dom;
   #beginTime;
   #prevTime;
@@ -10,8 +10,6 @@ class Stats {
   #memPanel;
 
   constructor() {
-    this.mode = 0;
-
     this.dom = document.createElement("div");
     this.dom.style.cssText =
       "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
@@ -24,7 +22,6 @@ class Stats {
       false
     );
 
-    //
     this.#beginTime = (performance || Date).now()
     this.#prevTime = this.#beginTime
     this.#frames = 0;
@@ -92,6 +89,9 @@ class Panel {
   static GRAPH_WIDTH = 74 * Panel.PR
   static GRAPH_HEIGHT = 30 * Panel.PR;
 
+  #min = Infinity
+  #max = 0
+
   /**
    * @param name {string}
    * @param fg {string}
@@ -100,9 +100,6 @@ class Panel {
     this.name = name;
     this.fg = fg;
     this.bg = bg;
-
-    this.min = Infinity
-    this.max = 0
 
     this.canvas = document.createElement("canvas");
     this.canvas.width = Panel.WIDTH;
@@ -134,8 +131,8 @@ class Panel {
    * @param maxValue {number}
    */
   update(value, maxValue) {
-    this.min = Math.min(this.min, value);
-    this.max = Math.max(this.max, value);
+    this.#min = Math.min(this.#min, value);
+    this.#max = Math.max(this.#max, value);
 
     if (this.context === null)
       return;
@@ -145,7 +142,7 @@ class Panel {
     this.context.fillStyle = this.fg;
     this.context.fillText(
       Math.round(value) + " " + this.name +
-      " (" + Math.round(this.min) + "-" + Math.round(this.max) + ")",
+      " (" + Math.round(this.#min) + "-" + Math.round(this.#max) + ")",
       Panel.TEXT_X,
       Panel.TEXT_Y
     );
