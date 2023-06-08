@@ -1,10 +1,11 @@
+// @ts-check
 import Stats from './vendor/stats.module.js';
 import * as THREE from './vendor/three.module.js';
 import { CSS3DRenderer, CSS3DObject } from './vendor/CSS3DRenderer.js';
 
 const stats = new Stats();
-stats.showPanel( 0 ); // 0: fps, 1: ms, 2: mb, 3+: custom
-document.body.appendChild( stats.dom );
+stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom);
 
 const table = [
   'H', 'Hydrogen', '1.00794', 1, 1,
@@ -127,143 +128,127 @@ const table = [
   'Og', 'Oganesson', '(294)', 18, 7
 ];
 
-let scene, camera, renderer;
-
 const objects = [];
 const targets = { table: [], sphere: [], helix: [], grid: [] };
 
-init();
-animate();
+// Create a basic perspective camera
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 1, 10000);
+camera.position.z = 3000;
+camera.lookAt(0.0, 0.0, 0.0);
 
-function init() {
-  // Create an empty scene
-  scene = new THREE.Scene();
+// Create an empty scene
+const scene = new THREE.Scene();
 
-  // Create a basic perspective camera
-  camera = new THREE.PerspectiveCamera(40, window.innerWidth/window.innerHeight, 0.1, 1000 );
-  camera.position.z = 3000;
-  camera.lookAt( 0.0, 0.0, 0.0);
+// table
+for (let i = 0; i < table.length; i += 5) {
+  const element = document.createElement('div');
+  element.className = 'element';
+  element.style.backgroundColor = 'rgba(0,127,127,' + (Math.random() * 0.5 + 0.25) + ')';
 
-  // Create a renderer with Antialiasing
-  renderer = new CSS3DRenderer();
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  // Append Renderer to DOM
-  document.getElementById('container').appendChild( renderer.domElement );
+  const number = document.createElement('div');
+  number.className = 'number';
+  number.textContent = (i / 5) + 1;
+  element.appendChild(number);
 
-  // EventListener
-  window.addEventListener( 'resize', onWindowResize );
-  const buttonTable = document.getElementById( 'table' );
-  buttonTable.addEventListener( 'click', function () {
-    transform( targets.table);
-  } );
+  const symbol = document.createElement('div');
+  symbol.className = 'symbol';
+  symbol.textContent = table[i];
+  element.appendChild(symbol);
 
-  const buttonSphere = document.getElementById( 'sphere' );
-  buttonSphere.addEventListener( 'click', function () {
-    transform( targets.sphere);
-  } );
+  const details = document.createElement('div');
+  details.className = 'details';
+  details.innerHTML = table[i + 1] + '<br>' + table[i + 2];
+  element.appendChild(details);
 
-  const buttonHelix = document.getElementById( 'helix' );
-  buttonHelix.addEventListener( 'click', function () {
-    transform( targets.helix);
-  } );
+  const objectCSS = new CSS3DObject(element);
+  objectCSS.position.x = Math.random() * 4000 - 2000;
+  objectCSS.position.y = Math.random() * 4000 - 2000;
+  objectCSS.position.z = Math.random() * 4000 - 2000;
+  scene.add(objectCSS);
 
-  const buttonGrid = document.getElementById( 'grid' );
-  buttonGrid.addEventListener( 'click', function () {
-    transform( targets.grid);
-  } );
+  objects.push(objectCSS);
 
-  // ------------------------------------------------
-  // FUN STARTS HERE
-  // ------------------------------------------------
-  // table
-  for ( let i = 0; i < table.length; i += 5 ) {
-    const element = document.createElement( 'div' );
-    element.className = 'element';
-    element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
-
-    const number = document.createElement( 'div' );
-    number.className = 'number';
-    number.textContent = ( i / 5 ) + 1;
-    element.appendChild( number );
-
-    const symbol = document.createElement( 'div' );
-    symbol.className = 'symbol';
-    symbol.textContent = table[ i ];
-    element.appendChild( symbol );
-
-    const details = document.createElement( 'div' );
-    details.className = 'details';
-    details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
-    element.appendChild( details );
-
-    const objectCSS = new CSS3DObject( element );
-    objectCSS.position.x = Math.random() * 4000 - 2000;
-    objectCSS.position.y = Math.random() * 4000 - 2000;
-    objectCSS.position.z = Math.random() * 4000 - 2000;
-    scene.add( objectCSS );
-
-    objects.push( objectCSS );
-
-    //
-    const object = new THREE.Object3D();
-    object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
-    object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
-    targets.table.push( object );
-  }
-
-  // sphere
-  const vector = new THREE.Vector3();
-  for ( let i = 0, l = objects.length; i < l; i++ ) {
-    const phi = Math.acos( - 1 + ( 2 * i ) / l );
-    const theta = Math.sqrt( l * Math.PI ) * phi;
-
-    const object = new THREE.Object3D();
-    object.position.setFromSphericalCoords( 800, phi, theta );
-
-    vector.copy( object.position ).multiplyScalar( 2 );
-    object.lookAt( vector );
-    targets.sphere.push( object );
-  }
-
-  // helix
-  for ( let i = 0, l = objects.length; i < l; i++ ) {
-    const theta = i * 0.175 + Math.PI;
-    const y = - ( i * 8 ) + 450;
-
-    const object = new THREE.Object3D();
-    object.position.setFromCylindricalCoords( 900, theta, y );
-
-    vector.x = object.position.x * 2;
-    vector.y = object.position.y;
-    vector.z = object.position.z * 2;
-    object.lookAt( vector );
-    targets.helix.push( object );
-  }
-
-  // grid
-  for ( let i = 0; i < objects.length; i++ ) {
-    const object = new THREE.Object3D();
-
-    object.position.x = ( ( i % 5 ) * 400 ) - 800;
-    object.position.y = ( - ( Math.floor( i / 5 ) % 5 ) * 400 ) + 800;
-    object.position.z = ( Math.floor( i / 25 ) ) * 1000 - 2000;
-    targets.grid.push( object );
-  }
-
+  //
+  const object = new THREE.Object3D();
+  object.position.x = (table[i + 3] * 140) - 1330;
+  object.position.y = - (table[i + 4] * 180) + 990;
+  targets.table.push(object);
 }
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+// sphere
+const vector = new THREE.Vector3();
+for (let i = 0, l = objects.length; i < l; i++) {
+  const phi = Math.acos(- 1 + (2 * i) / l);
+  const theta = Math.sqrt(l * Math.PI) * phi;
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  render();
+  const object = new THREE.Object3D();
+  object.position.setFromSphericalCoords(800, phi, theta);
+
+  vector.copy(object.position).multiplyScalar(2);
+  object.lookAt(vector);
+  targets.sphere.push(object);
 }
+
+// helix
+for (let i = 0, l = objects.length; i < l; i++) {
+  const theta = i * 0.175 + Math.PI;
+  const y = - (i * 8) + 450;
+
+  const object = new THREE.Object3D();
+  object.position.setFromCylindricalCoords(900, theta, y);
+
+  vector.x = object.position.x * 2;
+  vector.y = object.position.y;
+  vector.z = object.position.z * 2;
+  object.lookAt(vector);
+  targets.helix.push(object);
+}
+
+// grid
+for (let i = 0; i < objects.length; i++) {
+  const object = new THREE.Object3D();
+
+  object.position.x = ((i % 5) * 400) - 800;
+  object.position.y = (- (Math.floor(i / 5) % 5) * 400) + 800;
+  object.position.z = (Math.floor(i / 25)) * 1000 - 2000;
+  targets.grid.push(object);
+}
+
+// Create a renderer with Antialiasing
+const renderer = new CSS3DRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+// Append Renderer to DOM
+document.getElementById('container').appendChild(renderer.domElement);
+
+const buttonTable = document.getElementById('table');
+buttonTable.addEventListener('click', function () {
+  transform(targets.table);
+});
+
+const buttonSphere = document.getElementById('sphere');
+buttonSphere.addEventListener('click', function () {
+  transform(targets.sphere);
+});
+
+const buttonHelix = document.getElementById('helix');
+buttonHelix.addEventListener('click', function () {
+  transform(targets.helix);
+});
+
+const buttonGrid = document.getElementById('grid');
+buttonGrid.addEventListener('click', function () {
+  transform(targets.grid);
+});
+
+transform(targets.table)
+
+// EventListener
+window.addEventListener('resize', onWindowResize);
 
 function transform(targets) {
-  for ( let i = 0; i < objects.length; i ++ ) {
-    const object = objects[ i ];
-    const target = targets[ i ];
+  for (let i = 0; i < objects.length; i++) {
+    const object = objects[i];
+    const target = targets[i];
 
     object.position.x = target.position.x;
     object.position.y = target.position.y;
@@ -273,13 +258,21 @@ function transform(targets) {
     object.rotation.y = target.rotation.y;
     object.rotation.z = target.rotation.z;
 
-    //render();
   }
+  //render();
+}
+
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  render();
 }
 
 // Render Loop
 function animate() {
-  requestAnimationFrame( animate );
+  requestAnimationFrame(animate);
   stats.begin();
   render();
   stats.end();
@@ -289,4 +282,4 @@ function render() {
   renderer.render(scene, camera);
 }
 
-render();
+animate();
