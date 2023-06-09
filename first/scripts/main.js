@@ -5,10 +5,10 @@ import * as THREE from './vendor/three.module.js';
 const scene = new THREE.Scene();
 // Create a basic perspective camera
 const camera = new THREE.PerspectiveCamera(
-    /*FOV=*/75,
-    /*aspect=*/window.innerWidth / window.innerHeight,
-    /*near=*/0.1,
-    /*far=*/1000);
+  /*FOV=*/75,
+  /*aspect=*/window.innerWidth / window.innerHeight,
+  /*near=*/0.1,
+  /*far=*/1000);
 camera.position.set(0, 50, 100);
 camera.lookAt(0.0, 0.0, 0.0);
 
