@@ -1,3 +1,4 @@
+// @ts-check
 /**
  * dat-gui JavaScript Controller Library
  * https://github.com/dataarts/dat.gui

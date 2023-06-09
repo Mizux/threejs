@@ -1,0 +1,7 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" height="64" width="64">
+<rect height="64" width="64" x="0" y="0" style="fill: #888; stroke: none"/>
+<g transform="translate(32 32)">
+  <ellipse rx="32" ry="32" fill="#d101010"/>
+  <polyline points="-20,20 -20,-18 0,0 20,-18 20,20" style="fill:none;stroke:#d0d0d0;stroke-width:4" />
+</g>
+</svg>
