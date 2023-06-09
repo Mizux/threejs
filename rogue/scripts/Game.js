@@ -21,6 +21,7 @@ export default class Game {
   #state;
   render;
 
+  /** @param {HTMLElement | null} node */
   constructor(node = null) {
     this.#state = State.STOPPED;
     this.render = new Render(this);

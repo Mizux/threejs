@@ -18,7 +18,7 @@ export class WorldItem {
 }
 
 export class World {
-  #game = null;
+  #game;
 
   constructor(game, width, height) {
     console.assert(game instanceof Game, 'game must be of type Game');
