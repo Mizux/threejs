@@ -22,4 +22,4 @@ rules:
 globals:
   # use bundled version -> can't be imported
   ROT: readonly
-ignorePatterns: ["**/vendor/*.js"]
+#ignorePatterns: ["**/vendor/*.js"]
