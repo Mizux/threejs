@@ -186,210 +186,210 @@ var Common = {
 };
 
 var INTERPRETATIONS = [
-{
-  litmus: Common.isString,
-  conversions: {
-    THREE_CHAR_HEX: {
-      read: function read(original) {
-        var test = original.match(/^#([A-F0-9])([A-F0-9])([A-F0-9])$/i);
-        if (test === null) {
-          return false;
-        }
-        return {
-          space: 'HEX',
-          hex: parseInt('0x' + test[1].toString() + test[1].toString() + test[2].toString() + test[2].toString() + test[3].toString() + test[3].toString(), 0)
-        };
+  {
+    litmus: Common.isString,
+    conversions: {
+      THREE_CHAR_HEX: {
+        read: function read(original) {
+          var test = original.match(/^#([A-F0-9])([A-F0-9])([A-F0-9])$/i);
+          if (test === null) {
+            return false;
+          }
+          return {
+            space: 'HEX',
+            hex: parseInt('0x' + test[1].toString() + test[1].toString() + test[2].toString() + test[2].toString() + test[3].toString() + test[3].toString(), 0)
+          };
+        },
+        write: colorToString
       },
-      write: colorToString
-    },
-    SIX_CHAR_HEX: {
-      read: function read(original) {
-        var test = original.match(/^#([A-F0-9]{6})$/i);
-        if (test === null) {
-          return false;
-        }
-        return {
-          space: 'HEX',
-          hex: parseInt('0x' + test[1].toString(), 0)
-        };
+      SIX_CHAR_HEX: {
+        read: function read(original) {
+          var test = original.match(/^#([A-F0-9]{6})$/i);
+          if (test === null) {
+            return false;
+          }
+          return {
+            space: 'HEX',
+            hex: parseInt('0x' + test[1].toString(), 0)
+          };
+        },
+        write: colorToString
       },
-      write: colorToString
-    },
-    CSS_RGB: {
-      read: function read(original) {
-        var test = original.match(/^rgb\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\)/);
-        if (test === null) {
-          return false;
-        }
-        return {
-          space: 'RGB',
-          r: parseFloat(test[1]),
-          g: parseFloat(test[2]),
-          b: parseFloat(test[3])
-        };
-      },
-      write: colorToString
-    },
-    CSS_RGBA: {
-      read: function read(original) {
-        var test = original.match(/^rgba\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\)/);
-        if (test === null) {
-          return false;
-        }
-        return {
-          space: 'RGB',
-          r: parseFloat(test[1]),
-          g: parseFloat(test[2]),
-          b: parseFloat(test[3]),
-          a: parseFloat(test[4])
-        };
-      },
-      write: colorToString
-    }
-  }
-},
-{
-  litmus: Common.isNumber,
-  conversions: {
-    HEX: {
-      read: function read(original) {
-        return {
-          space: 'HEX',
-          hex: original,
-          conversionName: 'HEX'
-        };
-      },
-      write: function write(color) {
-        return color.hex;
-      }
-    }
-  }
-},
-{
-  litmus: Common.isArray,
-  conversions: {
-    RGB_ARRAY: {
-      read: function read(original) {
-        if (original.length !== 3) {
-          return false;
-        }
-        return {
-          space: 'RGB',
-          r: original[0],
-          g: original[1],
-          b: original[2]
-        };
-      },
-      write: function write(color) {
-        return [color.r, color.g, color.b];
-      }
-    },
-    RGBA_ARRAY: {
-      read: function read(original) {
-        if (original.length !== 4) return false;
-        return {
-          space: 'RGB',
-          r: original[0],
-          g: original[1],
-          b: original[2],
-          a: original[3]
-        };
-      },
-      write: function write(color) {
-        return [color.r, color.g, color.b, color.a];
-      }
-    }
-  }
-},
-{
-  litmus: Common.isObject,
-  conversions: {
-    RGBA_OBJ: {
-      read: function read(original) {
-        if (Common.isNumber(original.r) && Common.isNumber(original.g) && Common.isNumber(original.b) && Common.isNumber(original.a)) {
+      CSS_RGB: {
+        read: function read(original) {
+          var test = original.match(/^rgb\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\)/);
+          if (test === null) {
+            return false;
+          }
           return {
             space: 'RGB',
-            r: original.r,
-            g: original.g,
-            b: original.b,
-            a: original.a
+            r: parseFloat(test[1]),
+            g: parseFloat(test[2]),
+            b: parseFloat(test[3])
           };
-        }
-        return false;
+        },
+        write: colorToString
       },
-      write: function write(color) {
-        return {
-          r: color.r,
-          g: color.g,
-          b: color.b,
-          a: color.a
-        };
-      }
-    },
-    RGB_OBJ: {
-      read: function read(original) {
-        if (Common.isNumber(original.r) && Common.isNumber(original.g) && Common.isNumber(original.b)) {
+      CSS_RGBA: {
+        read: function read(original) {
+          var test = original.match(/^rgba\(\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*,\s*(\S+)\s*\)/);
+          if (test === null) {
+            return false;
+          }
           return {
             space: 'RGB',
-            r: original.r,
-            g: original.g,
-            b: original.b
+            r: parseFloat(test[1]),
+            g: parseFloat(test[2]),
+            b: parseFloat(test[3]),
+            a: parseFloat(test[4])
           };
-        }
-        return false;
-      },
-      write: function write(color) {
-        return {
-          r: color.r,
-          g: color.g,
-          b: color.b
-        };
-      }
-    },
-    HSVA_OBJ: {
-      read: function read(original) {
-        if (Common.isNumber(original.h) && Common.isNumber(original.s) && Common.isNumber(original.v) && Common.isNumber(original.a)) {
-          return {
-            space: 'HSV',
-            h: original.h,
-            s: original.s,
-            v: original.v,
-            a: original.a
-          };
-        }
-        return false;
-      },
-      write: function write(color) {
-        return {
-          h: color.h,
-          s: color.s,
-          v: color.v,
-          a: color.a
-        };
-      }
-    },
-    HSV_OBJ: {
-      read: function read(original) {
-        if (Common.isNumber(original.h) && Common.isNumber(original.s) && Common.isNumber(original.v)) {
-          return {
-            space: 'HSV',
-            h: original.h,
-            s: original.s,
-            v: original.v
-          };
-        }
-        return false;
-      },
-      write: function write(color) {
-        return {
-          h: color.h,
-          s: color.s,
-          v: color.v
-        };
+        },
+        write: colorToString
       }
     }
-  }
-}];
+  },
+  {
+    litmus: Common.isNumber,
+    conversions: {
+      HEX: {
+        read: function read(original) {
+          return {
+            space: 'HEX',
+            hex: original,
+            conversionName: 'HEX'
+          };
+        },
+        write: function write(color) {
+          return color.hex;
+        }
+      }
+    }
+  },
+  {
+    litmus: Common.isArray,
+    conversions: {
+      RGB_ARRAY: {
+        read: function read(original) {
+          if (original.length !== 3) {
+            return false;
+          }
+          return {
+            space: 'RGB',
+            r: original[0],
+            g: original[1],
+            b: original[2]
+          };
+        },
+        write: function write(color) {
+          return [color.r, color.g, color.b];
+        }
+      },
+      RGBA_ARRAY: {
+        read: function read(original) {
+          if (original.length !== 4) return false;
+          return {
+            space: 'RGB',
+            r: original[0],
+            g: original[1],
+            b: original[2],
+            a: original[3]
+          };
+        },
+        write: function write(color) {
+          return [color.r, color.g, color.b, color.a];
+        }
+      }
+    }
+  },
+  {
+    litmus: Common.isObject,
+    conversions: {
+      RGBA_OBJ: {
+        read: function read(original) {
+          if (Common.isNumber(original.r) && Common.isNumber(original.g) && Common.isNumber(original.b) && Common.isNumber(original.a)) {
+            return {
+              space: 'RGB',
+              r: original.r,
+              g: original.g,
+              b: original.b,
+              a: original.a
+            };
+          }
+          return false;
+        },
+        write: function write(color) {
+          return {
+            r: color.r,
+            g: color.g,
+            b: color.b,
+            a: color.a
+          };
+        }
+      },
+      RGB_OBJ: {
+        read: function read(original) {
+          if (Common.isNumber(original.r) && Common.isNumber(original.g) && Common.isNumber(original.b)) {
+            return {
+              space: 'RGB',
+              r: original.r,
+              g: original.g,
+              b: original.b
+            };
+          }
+          return false;
+        },
+        write: function write(color) {
+          return {
+            r: color.r,
+            g: color.g,
+            b: color.b
+          };
+        }
+      },
+      HSVA_OBJ: {
+        read: function read(original) {
+          if (Common.isNumber(original.h) && Common.isNumber(original.s) && Common.isNumber(original.v) && Common.isNumber(original.a)) {
+            return {
+              space: 'HSV',
+              h: original.h,
+              s: original.s,
+              v: original.v,
+              a: original.a
+            };
+          }
+          return false;
+        },
+        write: function write(color) {
+          return {
+            h: color.h,
+            s: color.s,
+            v: color.v,
+            a: color.a
+          };
+        }
+      },
+      HSV_OBJ: {
+        read: function read(original) {
+          if (Common.isNumber(original.h) && Common.isNumber(original.s) && Common.isNumber(original.v)) {
+            return {
+              space: 'HSV',
+              h: original.h,
+              s: original.s,
+              v: original.v
+            };
+          }
+          return false;
+        },
+        write: function write(color) {
+          return {
+            h: color.h,
+            s: color.s,
+            v: color.v
+          };
+        }
+      }
+    }
+  }];
 var result = void 0;
 var toReturn = void 0;
 var interpret = function interpret() {
@@ -801,37 +801,37 @@ var dom = {
     }
     var evt = document.createEvent(className);
     switch (className) {
-      case 'MouseEvents':
-        {
-          var clientX = params.x || params.clientX || 0;
-          var clientY = params.y || params.clientY || 0;
-          evt.initMouseEvent(eventType, params.bubbles || false, params.cancelable || true, window, params.clickCount || 1, 0,
-          0,
-          clientX,
-          clientY,
-          false, false, false, false, 0, null);
-          break;
-        }
-      case 'KeyboardEvents':
-        {
-          var init = evt.initKeyboardEvent || evt.initKeyEvent;
-          Common.defaults(params, {
-            cancelable: true,
-            ctrlKey: false,
-            altKey: false,
-            shiftKey: false,
-            metaKey: false,
-            keyCode: undefined,
-            charCode: undefined
-          });
-          init(eventType, params.bubbles || false, params.cancelable, window, params.ctrlKey, params.altKey, params.shiftKey, params.metaKey, params.keyCode, params.charCode);
-          break;
-        }
-      default:
-        {
-          evt.initEvent(eventType, params.bubbles || false, params.cancelable || true);
-          break;
-        }
+    case 'MouseEvents':
+    {
+      var clientX = params.x || params.clientX || 0;
+      var clientY = params.y || params.clientY || 0;
+      evt.initMouseEvent(eventType, params.bubbles || false, params.cancelable || true, window, params.clickCount || 1, 0,
+        0,
+        clientX,
+        clientY,
+        false, false, false, false, 0, null);
+      break;
+    }
+    case 'KeyboardEvents':
+    {
+      var init = evt.initKeyboardEvent || evt.initKeyEvent;
+      Common.defaults(params, {
+        cancelable: true,
+        ctrlKey: false,
+        altKey: false,
+        shiftKey: false,
+        metaKey: false,
+        keyCode: undefined,
+        charCode: undefined
+      });
+      init(eventType, params.bubbles || false, params.cancelable, window, params.ctrlKey, params.altKey, params.shiftKey, params.metaKey, params.keyCode, params.charCode);
+      break;
+    }
+    default:
+    {
+      evt.initEvent(eventType, params.bubbles || false, params.cancelable || true);
+      break;
+    }
     }
     Common.defaults(evt, aux);
     elem.dispatchEvent(evt);
@@ -1438,8 +1438,8 @@ var ColorController = function (_Controller) {
       }
       var fieldRect = _this.__saturation_field.getBoundingClientRect();
       var _ref = e.touches && e.touches[0] || e,
-          clientX = _ref.clientX,
-          clientY = _ref.clientY;
+        clientX = _ref.clientX,
+        clientY = _ref.clientY;
       var s = (clientX - fieldRect.left) / (fieldRect.right - fieldRect.left);
       var v = 1 - (clientY - fieldRect.top) / (fieldRect.bottom - fieldRect.top);
       if (v > 1) {
@@ -1463,7 +1463,7 @@ var ColorController = function (_Controller) {
       }
       var fieldRect = _this.__hue_field.getBoundingClientRect();
       var _ref2 = e.touches && e.touches[0] || e,
-          clientY = _ref2.clientY;
+        clientY = _ref2.clientY;
       var h = 1 - (clientY - fieldRect.top) / (fieldRect.bottom - fieldRect.top);
       if (h > 1) {
         h = 1;
@@ -1723,103 +1723,103 @@ var GUI = function GUI(pars) {
   var saveToLocalStorage = void 0;
   var titleRow = void 0;
   Object.defineProperties(this,
-  {
-    parent: {
-      get: function get$$1() {
-        return params.parent;
-      }
-    },
-    scrollable: {
-      get: function get$$1() {
-        return params.scrollable;
-      }
-    },
-    autoPlace: {
-      get: function get$$1() {
-        return params.autoPlace;
-      }
-    },
-    closeOnTop: {
-      get: function get$$1() {
-        return params.closeOnTop;
-      }
-    },
-    preset: {
-      get: function get$$1() {
-        if (_this.parent) {
-          return _this.getRoot().preset;
+    {
+      parent: {
+        get: function get$$1() {
+          return params.parent;
         }
-        return params.load.preset;
       },
-      set: function set$$1(v) {
-        if (_this.parent) {
-          _this.getRoot().preset = v;
-        } else {
-          params.load.preset = v;
+      scrollable: {
+        get: function get$$1() {
+          return params.scrollable;
         }
-        setPresetSelectIndex(this);
-        _this.revert();
-      }
-    },
-    width: {
-      get: function get$$1() {
-        return params.width;
       },
-      set: function set$$1(v) {
-        params.width = v;
-        setWidth(_this, v);
-      }
-    },
-    name: {
-      get: function get$$1() {
-        return params.name;
-      },
-      set: function set$$1(v) {
-        params.name = v;
-        if (titleRow) {
-          titleRow.innerHTML = params.name;
+      autoPlace: {
+        get: function get$$1() {
+          return params.autoPlace;
         }
-      }
-    },
-    closed: {
-      get: function get$$1() {
-        return params.closed;
       },
-      set: function set$$1(v) {
-        params.closed = v;
-        if (params.closed) {
-          dom.addClass(_this.__ul, GUI.CLASS_CLOSED);
-        } else {
-          dom.removeClass(_this.__ul, GUI.CLASS_CLOSED);
+      closeOnTop: {
+        get: function get$$1() {
+          return params.closeOnTop;
         }
-        this.onResize();
-        if (_this.__closeButton) {
-          _this.__closeButton.innerHTML = v ? GUI.TEXT_OPEN : GUI.TEXT_CLOSED;
-        }
-      }
-    },
-    load: {
-      get: function get$$1() {
-        return params.load;
-      }
-    },
-    useLocalStorage: {
-      get: function get$$1() {
-        return useLocalStorage;
       },
-      set: function set$$1(bool) {
-        if (SUPPORTS_LOCAL_STORAGE) {
-          useLocalStorage = bool;
-          if (bool) {
-            dom.bind(window, 'unload', saveToLocalStorage);
-          } else {
-            dom.unbind(window, 'unload', saveToLocalStorage);
+      preset: {
+        get: function get$$1() {
+          if (_this.parent) {
+            return _this.getRoot().preset;
           }
-          localStorage.setItem(getLocalStorageHash(_this, 'isLocal'), bool);
+          return params.load.preset;
+        },
+        set: function set$$1(v) {
+          if (_this.parent) {
+            _this.getRoot().preset = v;
+          } else {
+            params.load.preset = v;
+          }
+          setPresetSelectIndex(this);
+          _this.revert();
+        }
+      },
+      width: {
+        get: function get$$1() {
+          return params.width;
+        },
+        set: function set$$1(v) {
+          params.width = v;
+          setWidth(_this, v);
+        }
+      },
+      name: {
+        get: function get$$1() {
+          return params.name;
+        },
+        set: function set$$1(v) {
+          params.name = v;
+          if (titleRow) {
+            titleRow.innerHTML = params.name;
+          }
+        }
+      },
+      closed: {
+        get: function get$$1() {
+          return params.closed;
+        },
+        set: function set$$1(v) {
+          params.closed = v;
+          if (params.closed) {
+            dom.addClass(_this.__ul, GUI.CLASS_CLOSED);
+          } else {
+            dom.removeClass(_this.__ul, GUI.CLASS_CLOSED);
+          }
+          this.onResize();
+          if (_this.__closeButton) {
+            _this.__closeButton.innerHTML = v ? GUI.TEXT_OPEN : GUI.TEXT_CLOSED;
+          }
+        }
+      },
+      load: {
+        get: function get$$1() {
+          return params.load;
+        }
+      },
+      useLocalStorage: {
+        get: function get$$1() {
+          return useLocalStorage;
+        },
+        set: function set$$1(bool) {
+          if (SUPPORTS_LOCAL_STORAGE) {
+            useLocalStorage = bool;
+            if (bool) {
+              dom.bind(window, 'unload', saveToLocalStorage);
+            } else {
+              dom.unbind(window, 'unload', saveToLocalStorage);
+            }
+            localStorage.setItem(getLocalStorageHash(_this, 'isLocal'), bool);
+          }
         }
       }
-    }
-  });
+    });
   if (Common.isUndefined(params.parent)) {
     this.closed = params.closed || false;
     dom.addClass(this.domElement, GUI.CLASS_MAIN);
@@ -1935,212 +1935,212 @@ GUI._keydownHandler = function (e) {
 };
 dom.bind(window, 'keydown', GUI._keydownHandler, false);
 Common.extend(GUI.prototype,
-{
-  add: function add(object, property) {
-    return _add(this, object, property, {
-      factoryArgs: Array.prototype.slice.call(arguments, 2)
-    });
-  },
-  addColor: function addColor(object, property) {
-    return _add(this, object, property, {
-      color: true
-    });
-  },
-  remove: function remove(controller) {
-    this.__ul.removeChild(controller.__li);
-    this.__controllers.splice(this.__controllers.indexOf(controller), 1);
-    var _this = this;
-    Common.defer(function () {
-      _this.onResize();
-    });
-  },
-  destroy: function destroy() {
-    if (this.parent) {
-      throw new Error('Only the root GUI should be removed with .destroy(). ' + 'For subfolders, use gui.removeFolder(folder) instead.');
-    }
-    if (this.autoPlace) {
-      autoPlaceContainer.removeChild(this.domElement);
-    }
-    var _this = this;
-    Common.each(this.__folders, function (subfolder) {
-      _this.removeFolder(subfolder);
-    });
-    dom.unbind(window, 'keydown', GUI._keydownHandler, false);
-    removeListeners(this);
-  },
-  addFolder: function addFolder(name) {
-    if (this.__folders[name] !== undefined) {
-      throw new Error('You already have a folder in this GUI by the' + ' name "' + name + '"');
-    }
-    var newGuiParams = { name: name, parent: this };
-    newGuiParams.autoPlace = this.autoPlace;
-    if (this.load &&
+  {
+    add: function add(object, property) {
+      return _add(this, object, property, {
+        factoryArgs: Array.prototype.slice.call(arguments, 2)
+      });
+    },
+    addColor: function addColor(object, property) {
+      return _add(this, object, property, {
+        color: true
+      });
+    },
+    remove: function remove(controller) {
+      this.__ul.removeChild(controller.__li);
+      this.__controllers.splice(this.__controllers.indexOf(controller), 1);
+      var _this = this;
+      Common.defer(function () {
+        _this.onResize();
+      });
+    },
+    destroy: function destroy() {
+      if (this.parent) {
+        throw new Error('Only the root GUI should be removed with .destroy(). ' + 'For subfolders, use gui.removeFolder(folder) instead.');
+      }
+      if (this.autoPlace) {
+        autoPlaceContainer.removeChild(this.domElement);
+      }
+      var _this = this;
+      Common.each(this.__folders, function (subfolder) {
+        _this.removeFolder(subfolder);
+      });
+      dom.unbind(window, 'keydown', GUI._keydownHandler, false);
+      removeListeners(this);
+    },
+    addFolder: function addFolder(name) {
+      if (this.__folders[name] !== undefined) {
+        throw new Error('You already have a folder in this GUI by the' + ' name "' + name + '"');
+      }
+      var newGuiParams = { name: name, parent: this };
+      newGuiParams.autoPlace = this.autoPlace;
+      if (this.load &&
     this.load.folders &&
     this.load.folders[name]) {
-      newGuiParams.closed = this.load.folders[name].closed;
-      newGuiParams.load = this.load.folders[name];
-    }
-    var gui = new GUI(newGuiParams);
-    this.__folders[name] = gui;
-    var li = addRow(this, gui.domElement);
-    dom.addClass(li, 'folder');
-    return gui;
-  },
-  removeFolder: function removeFolder(folder) {
-    this.__ul.removeChild(folder.domElement.parentElement);
-    delete this.__folders[folder.name];
-    if (this.load &&
+        newGuiParams.closed = this.load.folders[name].closed;
+        newGuiParams.load = this.load.folders[name];
+      }
+      var gui = new GUI(newGuiParams);
+      this.__folders[name] = gui;
+      var li = addRow(this, gui.domElement);
+      dom.addClass(li, 'folder');
+      return gui;
+    },
+    removeFolder: function removeFolder(folder) {
+      this.__ul.removeChild(folder.domElement.parentElement);
+      delete this.__folders[folder.name];
+      if (this.load &&
     this.load.folders &&
     this.load.folders[folder.name]) {
-      delete this.load.folders[folder.name];
-    }
-    removeListeners(folder);
-    var _this = this;
-    Common.each(folder.__folders, function (subfolder) {
-      folder.removeFolder(subfolder);
-    });
-    Common.defer(function () {
-      _this.onResize();
-    });
-  },
-  open: function open() {
-    this.closed = false;
-  },
-  close: function close() {
-    this.closed = true;
-  },
-  hide: function hide() {
-    this.domElement.style.display = 'none';
-  },
-  show: function show() {
-    this.domElement.style.display = '';
-  },
-  onResize: function onResize() {
-    var root = this.getRoot();
-    if (root.scrollable) {
-      var top = dom.getOffset(root.__ul).top;
-      var h = 0;
-      Common.each(root.__ul.childNodes, function (node) {
-        if (!(root.autoPlace && node === root.__save_row)) {
-          h += dom.getHeight(node);
+        delete this.load.folders[folder.name];
+      }
+      removeListeners(folder);
+      var _this = this;
+      Common.each(folder.__folders, function (subfolder) {
+        folder.removeFolder(subfolder);
+      });
+      Common.defer(function () {
+        _this.onResize();
+      });
+    },
+    open: function open() {
+      this.closed = false;
+    },
+    close: function close() {
+      this.closed = true;
+    },
+    hide: function hide() {
+      this.domElement.style.display = 'none';
+    },
+    show: function show() {
+      this.domElement.style.display = '';
+    },
+    onResize: function onResize() {
+      var root = this.getRoot();
+      if (root.scrollable) {
+        var top = dom.getOffset(root.__ul).top;
+        var h = 0;
+        Common.each(root.__ul.childNodes, function (node) {
+          if (!(root.autoPlace && node === root.__save_row)) {
+            h += dom.getHeight(node);
+          }
+        });
+        if (window.innerHeight - top - CLOSE_BUTTON_HEIGHT < h) {
+          dom.addClass(root.domElement, GUI.CLASS_TOO_TALL);
+          root.__ul.style.height = window.innerHeight - top - CLOSE_BUTTON_HEIGHT + 'px';
+        } else {
+          dom.removeClass(root.domElement, GUI.CLASS_TOO_TALL);
+          root.__ul.style.height = 'auto';
+        }
+      }
+      if (root.__resize_handle) {
+        Common.defer(function () {
+          root.__resize_handle.style.height = root.__ul.offsetHeight + 'px';
+        });
+      }
+      if (root.__closeButton) {
+        root.__closeButton.style.width = root.width + 'px';
+      }
+    },
+    onResizeDebounced: Common.debounce(function () {
+      this.onResize();
+    }, 50),
+    remember: function remember() {
+      if (Common.isUndefined(SAVE_DIALOGUE)) {
+        SAVE_DIALOGUE = new CenteredDiv();
+        SAVE_DIALOGUE.domElement.innerHTML = saveDialogContents;
+      }
+      if (this.parent) {
+        throw new Error('You can only call remember on a top level GUI.');
+      }
+      var _this = this;
+      Common.each(Array.prototype.slice.call(arguments), function (object) {
+        if (_this.__rememberedObjects.length === 0) {
+          addSaveMenu(_this);
+        }
+        if (_this.__rememberedObjects.indexOf(object) === -1) {
+          _this.__rememberedObjects.push(object);
         }
       });
-      if (window.innerHeight - top - CLOSE_BUTTON_HEIGHT < h) {
-        dom.addClass(root.domElement, GUI.CLASS_TOO_TALL);
-        root.__ul.style.height = window.innerHeight - top - CLOSE_BUTTON_HEIGHT + 'px';
-      } else {
-        dom.removeClass(root.domElement, GUI.CLASS_TOO_TALL);
-        root.__ul.style.height = 'auto';
+      if (this.autoPlace) {
+        setWidth(this, this.width);
       }
-    }
-    if (root.__resize_handle) {
-      Common.defer(function () {
-        root.__resize_handle.style.height = root.__ul.offsetHeight + 'px';
+    },
+    getRoot: function getRoot() {
+      var gui = this;
+      while (gui.parent) {
+        gui = gui.parent;
+      }
+      return gui;
+    },
+    getSaveObject: function getSaveObject() {
+      var toReturn = this.load;
+      toReturn.closed = this.closed;
+      if (this.__rememberedObjects.length > 0) {
+        toReturn.preset = this.preset;
+        if (!toReturn.remembered) {
+          toReturn.remembered = {};
+        }
+        toReturn.remembered[this.preset] = getCurrentPreset(this);
+      }
+      toReturn.folders = {};
+      Common.each(this.__folders, function (element, key) {
+        toReturn.folders[key] = element.getSaveObject();
+      });
+      return toReturn;
+    },
+    save: function save() {
+      if (!this.load.remembered) {
+        this.load.remembered = {};
+      }
+      this.load.remembered[this.preset] = getCurrentPreset(this);
+      markPresetModified(this, false);
+      this.saveToLocalStorageIfPossible();
+    },
+    saveAs: function saveAs(presetName) {
+      if (!this.load.remembered) {
+        this.load.remembered = {};
+        this.load.remembered[DEFAULT_DEFAULT_PRESET_NAME] = getCurrentPreset(this, true);
+      }
+      this.load.remembered[presetName] = getCurrentPreset(this);
+      this.preset = presetName;
+      addPresetOption(this, presetName, true);
+      this.saveToLocalStorageIfPossible();
+    },
+    revert: function revert(gui) {
+      Common.each(this.__controllers, function (controller) {
+        if (!this.getRoot().load.remembered) {
+          controller.setValue(controller.initialValue);
+        } else {
+          recallSavedValue(gui || this.getRoot(), controller);
+        }
+        if (controller.__onFinishChange) {
+          controller.__onFinishChange.call(controller, controller.getValue());
+        }
+      }, this);
+      Common.each(this.__folders, function (folder) {
+        folder.revert(folder);
+      });
+      if (!gui) {
+        markPresetModified(this.getRoot(), false);
+      }
+    },
+    listen: function listen(controller) {
+      var init = this.__listening.length === 0;
+      this.__listening.push(controller);
+      if (init) {
+        updateDisplays(this.__listening);
+      }
+    },
+    updateDisplay: function updateDisplay() {
+      Common.each(this.__controllers, function (controller) {
+        controller.updateDisplay();
+      });
+      Common.each(this.__folders, function (folder) {
+        folder.updateDisplay();
       });
     }
-    if (root.__closeButton) {
-      root.__closeButton.style.width = root.width + 'px';
-    }
-  },
-  onResizeDebounced: Common.debounce(function () {
-    this.onResize();
-  }, 50),
-  remember: function remember() {
-    if (Common.isUndefined(SAVE_DIALOGUE)) {
-      SAVE_DIALOGUE = new CenteredDiv();
-      SAVE_DIALOGUE.domElement.innerHTML = saveDialogContents;
-    }
-    if (this.parent) {
-      throw new Error('You can only call remember on a top level GUI.');
-    }
-    var _this = this;
-    Common.each(Array.prototype.slice.call(arguments), function (object) {
-      if (_this.__rememberedObjects.length === 0) {
-        addSaveMenu(_this);
-      }
-      if (_this.__rememberedObjects.indexOf(object) === -1) {
-        _this.__rememberedObjects.push(object);
-      }
-    });
-    if (this.autoPlace) {
-      setWidth(this, this.width);
-    }
-  },
-  getRoot: function getRoot() {
-    var gui = this;
-    while (gui.parent) {
-      gui = gui.parent;
-    }
-    return gui;
-  },
-  getSaveObject: function getSaveObject() {
-    var toReturn = this.load;
-    toReturn.closed = this.closed;
-    if (this.__rememberedObjects.length > 0) {
-      toReturn.preset = this.preset;
-      if (!toReturn.remembered) {
-        toReturn.remembered = {};
-      }
-      toReturn.remembered[this.preset] = getCurrentPreset(this);
-    }
-    toReturn.folders = {};
-    Common.each(this.__folders, function (element, key) {
-      toReturn.folders[key] = element.getSaveObject();
-    });
-    return toReturn;
-  },
-  save: function save() {
-    if (!this.load.remembered) {
-      this.load.remembered = {};
-    }
-    this.load.remembered[this.preset] = getCurrentPreset(this);
-    markPresetModified(this, false);
-    this.saveToLocalStorageIfPossible();
-  },
-  saveAs: function saveAs(presetName) {
-    if (!this.load.remembered) {
-      this.load.remembered = {};
-      this.load.remembered[DEFAULT_DEFAULT_PRESET_NAME] = getCurrentPreset(this, true);
-    }
-    this.load.remembered[presetName] = getCurrentPreset(this);
-    this.preset = presetName;
-    addPresetOption(this, presetName, true);
-    this.saveToLocalStorageIfPossible();
-  },
-  revert: function revert(gui) {
-    Common.each(this.__controllers, function (controller) {
-      if (!this.getRoot().load.remembered) {
-        controller.setValue(controller.initialValue);
-      } else {
-        recallSavedValue(gui || this.getRoot(), controller);
-      }
-      if (controller.__onFinishChange) {
-        controller.__onFinishChange.call(controller, controller.getValue());
-      }
-    }, this);
-    Common.each(this.__folders, function (folder) {
-      folder.revert(folder);
-    });
-    if (!gui) {
-      markPresetModified(this.getRoot(), false);
-    }
-  },
-  listen: function listen(controller) {
-    var init = this.__listening.length === 0;
-    this.__listening.push(controller);
-    if (init) {
-      updateDisplays(this.__listening);
-    }
-  },
-  updateDisplay: function updateDisplay() {
-    Common.each(this.__controllers, function (controller) {
-      controller.updateDisplay();
-    });
-    Common.each(this.__folders, function (folder) {
-      folder.updateDisplay();
-    });
-  }
-});
+  });
 function addRow(gui, newDom, liBefore) {
   var li = document.createElement('li');
   if (newDom) {
