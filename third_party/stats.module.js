@@ -197,3 +197,4 @@ class Panel {
 }
 
 export default Stats;
+export {Stats, Panel};
