@@ -2512,7 +2512,7 @@ var controllers = {
 var dom$1 = { dom: dom };
 var gui = { GUI: GUI };
 var GUI$1 = GUI;
-var index = {
+var exports = {
   color: color,
   controllers: controllers,
   dom: dom$1,
@@ -2520,6 +2520,5 @@ var index = {
   GUI: GUI$1
 };
 
+export default exports;
 export { color, controllers, dom$1 as dom, gui, GUI$1 as GUI };
-export default index;
-//# sourceMappingURL=dat.gui.module.js.map
