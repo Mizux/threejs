@@ -1,5 +1,5 @@
 // @ts-check
-import { default as dat } from "./vendor/dat.gui.module.js";
+import * as DAT from "./vendor/dat.gui.module.js";
 import * as THREE from './vendor/three.module.js';
 
 // Create an empty scene
@@ -69,18 +69,18 @@ document.body.appendChild(newBtn);
 
 function dosomething() {
 }
-document.getElementById("btn").addEventListener("click", dosomething);
+document.getElementById("btn")?.addEventListener("click", dosomething);
 
 // Model struct
 
 function redraw() {
   const node = document.getElementById("main-div");
-  node.replaceChildren(svg.generate(param.percent));
+  node?.replaceChildren(svg.generate(param.percent));
   //console.log(svg.generate(param.percent))
 }
 
-// First define Dat.Gui instances
-const svgGUI = new dat.GUI({ load: JSON });
+// First define DAT.Gui instances
+const svgGUI = new DAT.GUI({ load: JSON });
 // must be call before gui construction
 svgGUI.remember(param);
 svgGUI.remember(svg.size, "Size");
