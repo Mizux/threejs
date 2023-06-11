@@ -3,7 +3,7 @@ import Stats from './vendor/stats.module.js';
 import * as THREE from './vendor/three.module.js';
 import { CSS3DRenderer, CSS3DObject } from './vendor/CSS3DRenderer.js';
 import { TrackballControls } from './vendor/TrackballControls.js';
-import TWEEN from './vendor/tween.module.js';
+import * as TWEEN from './vendor/tween.module.js';
 
 const stats = new Stats();
 stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
