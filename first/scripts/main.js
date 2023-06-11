@@ -1,5 +1,10 @@
 // @ts-check
+import Stats from './vendor/stats.module.js';
 import * as THREE from './vendor/three.module.js';
+
+const stats = new Stats();
+stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+document.body.appendChild(stats.dom);
 
 // Create an empty scene
 const scene = new THREE.Scene();
@@ -68,12 +73,14 @@ function onWindowResize() {
 function animate() {
   requestAnimationFrame(animate);
 
+  stats.begin();
   group.rotateX(0.003);
   group.rotateY(0.005);
   group.rotateZ(0.007);
 
   // Render the scene
   renderer.render(scene, camera);
+  stats.end();
 }
 
 animate();
