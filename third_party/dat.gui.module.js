@@ -1684,7 +1684,7 @@ var autoPlaceVirgin = true;
 var autoPlaceContainer = void 0;
 var hide = false;
 var hideableGuis = [];
-var GUI = function GUI(pars) {
+var GUI = /** @class */ function GUI(pars) {
   var _this = this;
   var params = pars || {};
   this.domElement = document.createElement('div');
@@ -1934,181 +1934,188 @@ GUI._keydownHandler = function (e) {
   }
 };
 dom.bind(window, 'keydown', GUI._keydownHandler, false);
-Common.extend(GUI.prototype,
-  {
-    add: function add(object, property) {
-      return _add(this, object, property, {
-        factoryArgs: Array.prototype.slice.call(arguments, 2)
+Common.extend(GUI.prototype, /** @lends GUI.prototype */ {
+  add: function add(object, property) {
+    return _add(this, object, property, {
+      factoryArgs: Array.prototype.slice.call(arguments, 2),
+    });
+  },
+  addColor: function addColor(object, property) {
+    return _add(this, object, property, {
+      color: true,
+    });
+  },
+  /** @this {GUI} */
+  remove: function remove(controller) {
+    this.__ul.removeChild(controller.__li);
+    this.__controllers.splice(this.__controllers.indexOf(controller), 1);
+    var _this = this;
+    Common.defer(function () {
+      _this.onResize();
+    });
+  },
+  destroy: function destroy() {
+    if (this.parent) {
+      throw new Error(
+        "Only the root GUI should be removed with .destroy(). " +
+          "For subfolders, use gui.removeFolder(folder) instead."
+      );
+    }
+    if (this.autoPlace) {
+      autoPlaceContainer.removeChild(this.domElement);
+    }
+    var _this = this;
+    Common.each(this.__folders, function (subfolder) {
+      _this.removeFolder(subfolder);
+    });
+    dom.unbind(window, "keydown", GUI._keydownHandler, false);
+    removeListeners(this);
+  },
+  addFolder: function addFolder(name) {
+    if (this.__folders[name] !== undefined) {
+      throw new Error(
+        "You already have a folder in this GUI by the" + ' name "' + name + '"'
+      );
+    }
+    var newGuiParams = { name: name, parent: this };
+    newGuiParams.autoPlace = this.autoPlace;
+    if (this.load && this.load.folders && this.load.folders[name]) {
+      newGuiParams.closed = this.load.folders[name].closed;
+      newGuiParams.load = this.load.folders[name];
+    }
+    var gui = new GUI(newGuiParams);
+    this.__folders[name] = gui;
+    var li = addRow(this, gui.domElement);
+    dom.addClass(li, "folder");
+    return gui;
+  },
+  removeFolder: function removeFolder(folder) {
+    this.__ul.removeChild(folder.domElement.parentElement);
+    delete this.__folders[folder.name];
+    if (this.load && this.load.folders && this.load.folders[folder.name]) {
+      delete this.load.folders[folder.name];
+    }
+    removeListeners(folder);
+    var _this = this;
+    Common.each(folder.__folders, function (subfolder) {
+      folder.removeFolder(subfolder);
+    });
+    Common.defer(function () {
+      _this.onResize();
+    });
+  },
+  open: function open() {
+    this.closed = false;
+  },
+  close: function close() {
+    this.closed = true;
+  },
+  hide: function hide() {
+    this.domElement.style.display = "none";
+  },
+  show: function show() {
+    this.domElement.style.display = "";
+  },
+  onResize: function onResize() {
+    var root = this.getRoot();
+    if (root.scrollable) {
+      var top = dom.getOffset(root.__ul).top;
+      var h = 0;
+      Common.each(root.__ul.childNodes, function (node) {
+        if (!(root.autoPlace && node === root.__save_row)) {
+          h += dom.getHeight(node);
+        }
       });
-    },
-    addColor: function addColor(object, property) {
-      return _add(this, object, property, {
-        color: true
-      });
-    },
-    remove: function remove(controller) {
-      this.__ul.removeChild(controller.__li);
-      this.__controllers.splice(this.__controllers.indexOf(controller), 1);
-      var _this = this;
+      if (window.innerHeight - top - CLOSE_BUTTON_HEIGHT < h) {
+        dom.addClass(root.domElement, GUI.CLASS_TOO_TALL);
+        root.__ul.style.height =
+          window.innerHeight - top - CLOSE_BUTTON_HEIGHT + "px";
+      } else {
+        dom.removeClass(root.domElement, GUI.CLASS_TOO_TALL);
+        root.__ul.style.height = "auto";
+      }
+    }
+    if (root.__resize_handle) {
       Common.defer(function () {
-        _this.onResize();
+        root.__resize_handle.style.height = root.__ul.offsetHeight + "px";
       });
-    },
-    destroy: function destroy() {
-      if (this.parent) {
-        throw new Error('Only the root GUI should be removed with .destroy(). ' + 'For subfolders, use gui.removeFolder(folder) instead.');
+    }
+    if (root.__closeButton) {
+      root.__closeButton.style.width = root.width + "px";
+    }
+  },
+  onResizeDebounced: Common.debounce(function () {
+    this.onResize();
+  }, 50),
+  remember: function remember() {
+    if (Common.isUndefined(SAVE_DIALOGUE)) {
+      SAVE_DIALOGUE = new CenteredDiv();
+      SAVE_DIALOGUE.domElement.innerHTML = saveDialogContents;
+    }
+    if (this.parent) {
+      throw new Error("You can only call remember on a top level GUI.");
+    }
+    var _this = this;
+    Common.each(Array.prototype.slice.call(arguments), function (object) {
+      if (_this.__rememberedObjects.length === 0) {
+        addSaveMenu(_this);
       }
-      if (this.autoPlace) {
-        autoPlaceContainer.removeChild(this.domElement);
+      if (_this.__rememberedObjects.indexOf(object) === -1) {
+        _this.__rememberedObjects.push(object);
       }
-      var _this = this;
-      Common.each(this.__folders, function (subfolder) {
-        _this.removeFolder(subfolder);
-      });
-      dom.unbind(window, 'keydown', GUI._keydownHandler, false);
-      removeListeners(this);
-    },
-    addFolder: function addFolder(name) {
-      if (this.__folders[name] !== undefined) {
-        throw new Error('You already have a folder in this GUI by the' + ' name "' + name + '"');
+    });
+    if (this.autoPlace) {
+      setWidth(this, this.width);
+    }
+  },
+  getRoot: function getRoot() {
+    var gui = this;
+    while (gui.parent) {
+      gui = gui.parent;
+    }
+    return gui;
+  },
+  getSaveObject: function getSaveObject() {
+    var toReturn = this.load;
+    toReturn.closed = this.closed;
+    if (this.__rememberedObjects.length > 0) {
+      toReturn.preset = this.preset;
+      if (!toReturn.remembered) {
+        toReturn.remembered = {};
       }
-      var newGuiParams = { name: name, parent: this };
-      newGuiParams.autoPlace = this.autoPlace;
-      if (this.load &&
-    this.load.folders &&
-    this.load.folders[name]) {
-        newGuiParams.closed = this.load.folders[name].closed;
-        newGuiParams.load = this.load.folders[name];
-      }
-      var gui = new GUI(newGuiParams);
-      this.__folders[name] = gui;
-      var li = addRow(this, gui.domElement);
-      dom.addClass(li, 'folder');
-      return gui;
-    },
-    removeFolder: function removeFolder(folder) {
-      this.__ul.removeChild(folder.domElement.parentElement);
-      delete this.__folders[folder.name];
-      if (this.load &&
-    this.load.folders &&
-    this.load.folders[folder.name]) {
-        delete this.load.folders[folder.name];
-      }
-      removeListeners(folder);
-      var _this = this;
-      Common.each(folder.__folders, function (subfolder) {
-        folder.removeFolder(subfolder);
-      });
-      Common.defer(function () {
-        _this.onResize();
-      });
-    },
-    open: function open() {
-      this.closed = false;
-    },
-    close: function close() {
-      this.closed = true;
-    },
-    hide: function hide() {
-      this.domElement.style.display = 'none';
-    },
-    show: function show() {
-      this.domElement.style.display = '';
-    },
-    onResize: function onResize() {
-      var root = this.getRoot();
-      if (root.scrollable) {
-        var top = dom.getOffset(root.__ul).top;
-        var h = 0;
-        Common.each(root.__ul.childNodes, function (node) {
-          if (!(root.autoPlace && node === root.__save_row)) {
-            h += dom.getHeight(node);
-          }
-        });
-        if (window.innerHeight - top - CLOSE_BUTTON_HEIGHT < h) {
-          dom.addClass(root.domElement, GUI.CLASS_TOO_TALL);
-          root.__ul.style.height = window.innerHeight - top - CLOSE_BUTTON_HEIGHT + 'px';
-        } else {
-          dom.removeClass(root.domElement, GUI.CLASS_TOO_TALL);
-          root.__ul.style.height = 'auto';
-        }
-      }
-      if (root.__resize_handle) {
-        Common.defer(function () {
-          root.__resize_handle.style.height = root.__ul.offsetHeight + 'px';
-        });
-      }
-      if (root.__closeButton) {
-        root.__closeButton.style.width = root.width + 'px';
-      }
-    },
-    onResizeDebounced: Common.debounce(function () {
-      this.onResize();
-    }, 50),
-    remember: function remember() {
-      if (Common.isUndefined(SAVE_DIALOGUE)) {
-        SAVE_DIALOGUE = new CenteredDiv();
-        SAVE_DIALOGUE.domElement.innerHTML = saveDialogContents;
-      }
-      if (this.parent) {
-        throw new Error('You can only call remember on a top level GUI.');
-      }
-      var _this = this;
-      Common.each(Array.prototype.slice.call(arguments), function (object) {
-        if (_this.__rememberedObjects.length === 0) {
-          addSaveMenu(_this);
-        }
-        if (_this.__rememberedObjects.indexOf(object) === -1) {
-          _this.__rememberedObjects.push(object);
-        }
-      });
-      if (this.autoPlace) {
-        setWidth(this, this.width);
-      }
-    },
-    getRoot: function getRoot() {
-      var gui = this;
-      while (gui.parent) {
-        gui = gui.parent;
-      }
-      return gui;
-    },
-    getSaveObject: function getSaveObject() {
-      var toReturn = this.load;
-      toReturn.closed = this.closed;
-      if (this.__rememberedObjects.length > 0) {
-        toReturn.preset = this.preset;
-        if (!toReturn.remembered) {
-          toReturn.remembered = {};
-        }
-        toReturn.remembered[this.preset] = getCurrentPreset(this);
-      }
-      toReturn.folders = {};
-      Common.each(this.__folders, function (element, key) {
-        toReturn.folders[key] = element.getSaveObject();
-      });
-      return toReturn;
-    },
-    save: function save() {
-      if (!this.load.remembered) {
-        this.load.remembered = {};
-      }
-      this.load.remembered[this.preset] = getCurrentPreset(this);
-      markPresetModified(this, false);
-      this.saveToLocalStorageIfPossible();
-    },
-    saveAs: function saveAs(presetName) {
-      if (!this.load.remembered) {
-        this.load.remembered = {};
-        this.load.remembered[DEFAULT_DEFAULT_PRESET_NAME] = getCurrentPreset(this, true);
-      }
-      this.load.remembered[presetName] = getCurrentPreset(this);
-      this.preset = presetName;
-      addPresetOption(this, presetName, true);
-      this.saveToLocalStorageIfPossible();
-    },
-    revert: function revert(gui) {
-      Common.each(this.__controllers, function (controller) {
+      toReturn.remembered[this.preset] = getCurrentPreset(this);
+    }
+    toReturn.folders = {};
+    Common.each(this.__folders, function (element, key) {
+      toReturn.folders[key] = element.getSaveObject();
+    });
+    return toReturn;
+  },
+  save: function save() {
+    if (!this.load.remembered) {
+      this.load.remembered = {};
+    }
+    this.load.remembered[this.preset] = getCurrentPreset(this);
+    markPresetModified(this, false);
+    this.saveToLocalStorageIfPossible();
+  },
+  saveAs: function saveAs(presetName) {
+    if (!this.load.remembered) {
+      this.load.remembered = {};
+      this.load.remembered[DEFAULT_DEFAULT_PRESET_NAME] = getCurrentPreset(
+        this,
+        true
+      );
+    }
+    this.load.remembered[presetName] = getCurrentPreset(this);
+    this.preset = presetName;
+    addPresetOption(this, presetName, true);
+    this.saveToLocalStorageIfPossible();
+  },
+  revert: function revert(gui) {
+    Common.each(
+      this.__controllers,
+      function (controller) {
         if (!this.getRoot().load.remembered) {
           controller.setValue(controller.initialValue);
         } else {
@@ -2117,30 +2124,32 @@ Common.extend(GUI.prototype,
         if (controller.__onFinishChange) {
           controller.__onFinishChange.call(controller, controller.getValue());
         }
-      }, this);
-      Common.each(this.__folders, function (folder) {
-        folder.revert(folder);
-      });
-      if (!gui) {
-        markPresetModified(this.getRoot(), false);
-      }
-    },
-    listen: function listen(controller) {
-      var init = this.__listening.length === 0;
-      this.__listening.push(controller);
-      if (init) {
-        updateDisplays(this.__listening);
-      }
-    },
-    updateDisplay: function updateDisplay() {
-      Common.each(this.__controllers, function (controller) {
-        controller.updateDisplay();
-      });
-      Common.each(this.__folders, function (folder) {
-        folder.updateDisplay();
-      });
+      },
+      this
+    );
+    Common.each(this.__folders, function (folder) {
+      folder.revert(folder);
+    });
+    if (!gui) {
+      markPresetModified(this.getRoot(), false);
     }
-  });
+  },
+  listen: function listen(controller) {
+    var init = this.__listening.length === 0;
+    this.__listening.push(controller);
+    if (init) {
+      updateDisplays(this.__listening);
+    }
+  },
+  updateDisplay: function updateDisplay() {
+    Common.each(this.__controllers, function (controller) {
+      controller.updateDisplay();
+    });
+    Common.each(this.__folders, function (folder) {
+      folder.updateDisplay();
+    });
+  },
+});
 function addRow(gui, newDom, liBefore) {
   var li = document.createElement('li');
   if (newDom) {
