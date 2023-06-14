@@ -54,6 +54,9 @@ const plane_material = new THREE.MeshPhongMaterial({ color: '#101010', flatShadi
 const plane = new THREE.Mesh(plane_geometry, plane_material);
 scene.add(plane);
 
+const axesHelper = new THREE.AxesHelper(1);
+scene.add(axesHelper);
+
 const unit_cube_geometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
 unit_cube_geometry.translate(0, 0.5, 0)
 const unit_cube_material = new THREE.MeshBasicMaterial({ color: 'white' });
@@ -88,6 +91,9 @@ document.getElementById('btn')?.addEventListener('click', dosomething);
 const params = {
   scene: {
     bg: '#000000',
+    axesHelper: {
+      visible: true,
+    },
     plane: {
       visible: true,
       color: '#202020',
@@ -128,6 +134,8 @@ const gui = new DAT.GUI({ load: JSON });
 
 const sceneGUI = gui.addFolder('Scene');
 sceneGUI.addColor(params.scene, 'bg').onChange(updateParams);
+const sceneAxesHelperGUI = sceneGUI.addFolder('Axes Helper');
+sceneAxesHelperGUI.add(params.scene.axesHelper, 'visible').onChange(updateParams);
 const scenePlaneGUI = sceneGUI.addFolder('Plane');
 scenePlaneGUI.add(params.scene.plane, 'visible').onChange(updateParams);
 scenePlaneGUI.addColor(params.scene.plane, 'color').onChange(updateParams);
