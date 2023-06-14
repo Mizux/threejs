@@ -56,7 +56,7 @@ scene.add(plane);
 
 const unit_cube_geometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
 unit_cube_geometry.translate(0, 0.5, 0)
-const unit_cube_material = new THREE.MeshBasicMaterial({ color: "white" });
+const unit_cube_material = new THREE.MeshBasicMaterial({ color: 'white' });
 //const unit_cube_material = new THREE.MeshPhongMaterial({ color: '#101010', flatShading: false });
 const unit_cube = new THREE.Mesh(unit_cube_geometry, unit_cube_material);
 scene.add(unit_cube);
