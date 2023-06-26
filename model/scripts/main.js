@@ -58,7 +58,7 @@ const axesHelper = new THREE.AxesHelper(1);
 scene.add(axesHelper);
 
 const unit_cube_geometry = new THREE.BoxGeometry(1.0, 1.0, 1.0);
-unit_cube_geometry.translate(0, 0.5, 0)
+unit_cube_geometry.translate(0, 0.5, 0);
 const unit_cube_material = new THREE.MeshBasicMaterial({ color: 'white' });
 //const unit_cube_material = new THREE.MeshPhongMaterial({ color: '#101010', flatShading: false });
 const unit_cube = new THREE.Mesh(unit_cube_geometry, unit_cube_material);
@@ -116,7 +116,7 @@ const params = {
 function updateParams() {
   scene.background = new THREE.Color(params.scene.bg);
   plane.visible = params.scene.plane.visible;
-  plane.material.color = new THREE.Color(params.scene.plane.color);
+  plane_material.color = new THREE.Color(params.scene.plane.color);
   unit_cube.visible = params.scene.unit_cube.visible;
   unit_cube.material.color = new THREE.Color(params.scene.unit_cube.color);
   
