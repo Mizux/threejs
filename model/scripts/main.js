@@ -74,7 +74,6 @@ model.add(new THREE.LineSegments(box_geometry, lineMaterial));
 model.position.set(0, 0.5 * Math.SQRT2, 0);
 scene.add(model);
 
-
 /*
 // Button stuff
 const newBtn = document.createElement('button');
@@ -118,7 +117,7 @@ function updateParams() {
   plane.visible = params.scene.plane.visible;
   plane_material.color = new THREE.Color(params.scene.plane.color);
   unit_cube.visible = params.scene.unit_cube.visible;
-  unit_cube.material.color = new THREE.Color(params.scene.unit_cube.color);
+  unit_cube_material.color = new THREE.Color(params.scene.unit_cube.color);
   
   camera.lookAt(0.0, 0.0, 0.0);
 

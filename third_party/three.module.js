@@ -903,10 +903,12 @@ class Vector2 {
     }
   }
 
+  /** @return {Vector2} */
   clone() {
     return new this.constructor(this.x, this.y);
   }
 
+  /** @param {Vector2} v */
   copy(v) {
     this.x = v.x;
     this.y = v.y;
@@ -914,6 +916,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   add(v) {
     this.x += v.x;
     this.y += v.y;
@@ -942,6 +945,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   sub(v) {
     this.x -= v.x;
     this.y -= v.y;
@@ -963,6 +967,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   multiply(v) {
     this.x *= v.x;
     this.y *= v.y;
@@ -977,6 +982,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   divide(v) {
     this.x /= v.x;
     this.y /= v.y;
@@ -999,6 +1005,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   min(v) {
     this.x = Math.min(this.x, v.x);
     this.y = Math.min(this.y, v.y);
@@ -1006,6 +1013,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   max(v) {
     this.x = Math.max(this.x, v.x);
     this.y = Math.max(this.y, v.y);
@@ -1072,10 +1080,12 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   dot(v) {
     return this.x * v.x + this.y * v.y;
   }
 
+  /** @param {Vector2} v */
   cross(v) {
     return this.x * v.y - this.y * v.x;
   }
@@ -1104,6 +1114,7 @@ class Vector2 {
     return angle;
   }
 
+  /** @param {Vector2} v */
   angleTo(v) {
     const denominator = Math.sqrt(this.lengthSq() * v.lengthSq());
 
@@ -1116,16 +1127,19 @@ class Vector2 {
     return Math.acos(clamp(theta, -1, 1));
   }
 
+  /** @param {Vector2} v */
   distanceTo(v) {
     return Math.sqrt(this.distanceToSquared(v));
   }
 
+  /** @param {Vector2} v */
   distanceToSquared(v) {
     const dx = this.x - v.x,
       dy = this.y - v.y;
     return dx * dx + dy * dy;
   }
 
+  /** @param {Vector2} v */
   manhattanDistanceTo(v) {
     return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
   }
@@ -1148,6 +1162,7 @@ class Vector2 {
     return this;
   }
 
+  /** @param {Vector2} v */
   equals(v) {
     return v.x === this.x && v.y === this.y;
   }
@@ -1743,12 +1758,16 @@ class ImageUtils {
         image instanceof HTMLCanvasElement) ||
       (typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap)
     ) {
+      /** @type {HTMLCanvasElement} */
       const canvas = createElementNS('canvas');
 
       canvas.width = image.width;
       canvas.height = image.height;
 
       const context = canvas.getContext('2d');
+      if (context === null) {
+        throw new Error("Can't create context 2D");
+      }
       context.drawImage(image, 0, 0, image.width, image.height);
 
       const imageData = context.getImageData(0, 0, image.width, image.height);
