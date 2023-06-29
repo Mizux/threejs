@@ -120,7 +120,7 @@ function updateParams() {
   unit_cube_material.color = new THREE.Color(params.scene.unit_cube.color);
   
   camera.lookAt(0.0, 0.0, 0.0);
-
+  camera.updateProjectionMatrix(); // if fov change
   //setModel(params.model);
 }
 
@@ -154,7 +154,7 @@ for (let i = 0; i < lights.length; ++i) {
 //lightsGUI.open();
 
 const cameraGUI = gui.addFolder('Camera');
-cameraGUI.add(camera, 'fov').onChange(updateParams);
+cameraGUI.add(camera, 'fov', 30, 150, 5).onChange(updateParams);
 cameraGUI.add(camera.position, 'x', -16, 16, 0.1).onChange(updateParams);
 cameraGUI.add(camera.position, 'y', -16, 16, 0.1).onChange(updateParams);
 cameraGUI.add(camera.position, 'z', -16, 16, 0.1).onChange(updateParams);
