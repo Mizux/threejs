@@ -6,12 +6,12 @@ command -v docker
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Build image
-docker build -t svg .
+docker build -t three .
 
 # Run container
 docker run --rm --init \
  -p 8080:8080 \
- -v ${SCRIPT_DIR}:/home/node/app \
+ -v "${SCRIPT_DIR}":/home/node/app \
  -it \
- --name svg \
- svg:latest
+ --name three \
+ three:latest
