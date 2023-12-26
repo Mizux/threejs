@@ -18,8 +18,11 @@ class State {
 }
 
 export default class Game {
-  #state;
   render;
+  scheduler;
+  engine;
+  world;
+  #state;
 
   constructor(node = null) {
     this.#state = State.STOPPED;

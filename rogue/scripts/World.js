@@ -19,7 +19,7 @@ export class WorldItem {
 }
 
 export class World {
-  #game = null;
+  #game;
 
   /**@param {Game} game*/
   constructor(game, width, height) {
