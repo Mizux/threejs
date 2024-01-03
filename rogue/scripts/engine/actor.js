@@ -12,6 +12,8 @@ export default class Actor {
    * @param {Vector2} position
    */
   constructor(game, position) {
+    console.assert(game instanceof Game, 'game must be of type Game');
+    console.assert(position instanceof Vector2, 'position must be of type Vector2');
     this._game = game;
     this.position = position.clone();
     this._game.scheduler.add(this, true);
