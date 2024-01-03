@@ -1,6 +1,7 @@
 // @ts-check
-import Game from './Game.js';
-import Vector2 from './Vector2.js';
+import Game from '../game.js';
+
+import Vector2 from './vector2.js';
 
 export default class Actor {
   _game;

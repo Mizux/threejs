@@ -1,5 +1,5 @@
 // @ts-check
-import Game from './Game.js';
+import Game from './game.js';
 
 const game = new Game();
 game.start();
@@ -9,7 +9,6 @@ function update() {
   game.reset();
   setTimeout(() => {
     update();
-  }, 10*1000);
+  }, 10 * 1000);
 }
 update();
-

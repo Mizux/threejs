@@ -1,8 +1,9 @@
 // @ts-check
-//import * as ROT from './vendor/rot.js';
-import Game from './Game.js';
-import Actor from './Actor.js';
-import Vector2 from './Vector2.js';
+// import * as ROT from './vendor/rot.js';
+import Game from '../game.js';
+
+import Actor from './actor.js';
+import Vector2 from './vector2.js';
 
 export default class Monster extends Actor {
   /**
@@ -18,10 +19,8 @@ export default class Monster extends Actor {
     const index = Math.floor(ROT.RNG.getUniform() * 8);
     const value = ROT.DIRS[8][index];
 
-    const newPos = new Vector2(
-      this.position.x + value[0],
-      this.position.y + value[1]
-    );
+    const newPos =
+        new Vector2(this.position.x + value[0], this.position.y + value[1]);
     if (this._game.world.isWalkable(newPos)) {
       this.position.x = newPos.x;
       this.position.y = newPos.y;

@@ -5,4 +5,3 @@ export default class UID {
     return this.#id++;
   }
 }
-

@@ -4,7 +4,7 @@ export default class Vector2 {
   y;
 
   constructor(x = 0, y = 0) {
-    //Vector2.prototype.isVector2 = true;
+    // Vector2.prototype.isVector2 = true;
 
     this.x = x;
     this.y = y;
@@ -72,14 +72,14 @@ export default class Vector2 {
    */
   setComponent(index, value) {
     switch (index) {
-    case 0:
-      this.x = value;
-      break;
-    case 1:
-      this.y = value;
-      break;
-    default:
-      throw new Error('index is out of range: ' + index);
+      case 0:
+        this.x = value;
+        break;
+      case 1:
+        this.y = value;
+        break;
+      default:
+        throw new Error('index is out of range: ' + index);
     }
 
     return this;
@@ -90,12 +90,12 @@ export default class Vector2 {
    */
   getComponent(index) {
     switch (index) {
-    case 0:
-      return this.x;
-    case 1:
-      return this.y;
-    default:
-      throw new Error('index is out of range: ' + index);
+      case 0:
+        return this.x;
+      case 1:
+        return this.y;
+      default:
+        throw new Error('index is out of range: ' + index);
     }
   }
 
@@ -227,8 +227,7 @@ export default class Vector2 {
    * @param {{ elements: any; }} m
    */
   applyMatrix3(m) {
-    const x = this.x,
-      y = this.y;
+    const x = this.x, y = this.y;
     const e = m.elements;
 
     this.x = e[0] * x + e[3] * y + e[6];
@@ -288,9 +287,8 @@ export default class Vector2 {
   clampLength(min, max) {
     const length = this.length();
 
-    return this.divideScalar(length || 1).multiplyScalar(
-      Math.max(min, Math.min(max, length))
-    );
+    return this.divideScalar(length || 1)
+        .multiplyScalar(Math.max(min, Math.min(max, length)));
   }
 
   floor() {
@@ -377,8 +375,7 @@ export default class Vector2 {
    * @param {{ x: number; y: number; }} v
    */
   distanceToSquared(v) {
-    const dx = this.x - v.x,
-      dy = this.y - v.y;
+    const dx = this.x - v.x, dy = this.y - v.y;
     return dx * dx + dy * dy;
   }
 
@@ -444,7 +441,8 @@ export default class Vector2 {
   }
 
   /**
-   * @param {{ getX: (arg0: any) => number; getY: (arg0: any) => number; }} attribute
+   * @param {{ getX: (arg0: any) => number; getY: (arg0: any) => number; }}
+   *     attribute
    * @param {any} index
    */
   fromBufferAttribute(attribute, index) {
@@ -459,8 +457,7 @@ export default class Vector2 {
    * @param {number} angle
    */
   rotateAround(center, angle) {
-    const c = Math.cos(angle),
-      s = Math.sin(angle);
+    const c = Math.cos(angle), s = Math.sin(angle);
 
     const x = this.x - center.x;
     const y = this.y - center.y;
@@ -482,7 +479,7 @@ export default class Vector2 {
     return `${this.x},${this.y}`;
   }
 
-  *[Symbol.iterator]() {
+  * [Symbol.iterator]() {
     yield this.x;
     yield this.y;
   }

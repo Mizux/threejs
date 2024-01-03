@@ -1,12 +1,14 @@
 // @ts-check
 // eslint-disable-next-line no-unused-vars
-import Game from './Game.js';
 // eslint-disable-next-line no-unused-vars
-import Vector2 from './Vector2.js';
-//import * as ROT from './vendor/rot.js';
-import Debug from './Debug.js';
-import * as THREE from './vendor/three.module.js';
-//import { OrbitControls } from './vendor/OrbitControls.js';
+import Vector2 from '../engine/vector2.js';
+import Game from '../game.js';
+import * as THREE from '../vendor/three.module.js';
+
+// import * as ROT from './vendor/rot.js';
+import Debug from './debug.js';
+
+// import { OrbitControls } from './vendor/OrbitControls.js';
 
 class Entity {
   game;
@@ -39,10 +41,8 @@ class Entity {
     /** @type {THREE.Line[]} */
     const lines = [];
     this.root.traverse((/** @type {THREE.Object3D} */ object) => {
-      if (object instanceof THREE.Mesh)
-        meshes.push(object);
-      if (object instanceof THREE.Line)
-        lines.push(object);
+      if (object instanceof THREE.Mesh) meshes.push(object);
+      if (object instanceof THREE.Line) lines.push(object);
     });
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i];
@@ -115,7 +115,7 @@ class PlayerEntity extends Entity {
     super(game, position);
 
     this.light = new THREE.PointLight(0xffffff, 1, 0, 0.02);
-    //this.light.castShadow = true;
+    // this.light.castShadow = true;
     this.light.position.set(0, 0, 2);
     this.root.add(this.light);
 
@@ -127,8 +127,8 @@ class PlayerEntity extends Entity {
       flatShading: true,
     });
     this.box = new THREE.Mesh(boxGeometry, boxMaterial);
-    this.box.castShadow = false; //default is false
-    this.box.receiveShadow = false; //default
+    this.box.castShadow = false;     // default is false
+    this.box.receiveShadow = false;  // default
     this.root.add(this.box);
 
     const lineMaterial = new THREE.LineBasicMaterial({
@@ -174,8 +174,8 @@ class MonsterEntity extends Entity {
       flatShading: true,
     });
     this.box = new THREE.Mesh(boxGeometry, boxMaterial);
-    this.box.castShadow = false; //default is false
-    this.box.receiveShadow = false; //default
+    this.box.castShadow = false;     // default is false
+    this.box.receiveShadow = false;  // default
     this.root.add(this.box);
 
     this.root.position.z = 0.5;
@@ -198,7 +198,7 @@ class State {
   static STARTED = new State('STARTED');
   static PAUSED = new State('PAUSED');
   static STOPPED = new State('STOPPED');
-  
+
   /** @param {string} name*/
   constructor(name) {
     this.name = name;
@@ -233,43 +233,40 @@ export default class Render {
     this.#debug = new Debug();
 
     this.game = game;
-    
+
     // Scene
     this.scene = new THREE.Scene();
     this.lightTarget = new THREE.Object3D();
     this.scene.add(this.lightTarget);
     this.light = new THREE.DirectionalLight(0xf0f0f0, 2);
-    //this.light.castShadow = true;
+    // this.light.castShadow = true;
     this.light.position.set(0, 0, 75);
     this.light.target = this.lightTarget;
     this.scene.add(this.light);
-    
+
     // Camera
     this.fov = 75;
     this.nearPlane = 1;
     this.farPlane = 1000;
     this.camera = new THREE.PerspectiveCamera(
-      this.fov,
-      window.innerWidth / window.innerHeight,
-      this.nearPlane,
-      this.farPlane
-    );
+        this.fov, window.innerWidth / window.innerHeight, this.nearPlane,
+        this.farPlane);
     this.camera.position.set(0, 0, 75);
     this.camera.lookAt(0.0, 0.0, 0.0);
 
     // Create a renderer with Antialiasing
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({antialias: true});
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    //this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    //this.renderer.outputEncoding = THREE.sRGBEncoding;
+    // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    // this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.setClearColor('#101010');
 
-    //this.renderer.shadowMap.enabled = true;
-    //this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // this.renderer.shadowMap.enabled = true;
+    // this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     // NOTE: Additional components.
-    //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
     // if window resizes
     window.addEventListener('resize', () => this.#onWindowResize(), false);
@@ -281,15 +278,15 @@ export default class Render {
 
   // Control the rendering engine
   start() {
-    if (this.#state === State.STARTED) return;
-    else this.#state = State.STARTED;
+    if (this.#state === State.STARTED)
+      return;
+    else
+      this.#state = State.STARTED;
 
     // Reset Camera position
     const map = this.game.world.map;
-    const p =
-      Math.max(map.width, map.height) /
-      2 /
-      Math.tan(((this.fov / 2) * Math.PI) / 180);
+    const p = Math.max(map.width, map.height) / 2 /
+        Math.tan(((this.fov / 2) * Math.PI) / 180);
     this.camera.position.set(map.width / 2, map.height / 6, p);
     this.camera.lookAt(map.width / 2, map.height / 2, 0);
 
@@ -327,8 +324,10 @@ export default class Render {
   }
 
   pause() {
-    if (this.#state === State.PAUSED || this.#state === State.STOPPED) return;
-    else this.#state = State.PAUSED;
+    if (this.#state === State.PAUSED || this.#state === State.STOPPED)
+      return;
+    else
+      this.#state = State.PAUSED;
 
     if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);
@@ -338,8 +337,10 @@ export default class Render {
   }
 
   stop() {
-    if (this.#state === State.STOPPED) return;
-    else this.#state = State.STOPPED;
+    if (this.#state === State.STOPPED)
+      return;
+    else
+      this.#state = State.STOPPED;
 
     if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);
@@ -357,13 +358,13 @@ export default class Render {
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
 
-    //console.log(t);
+    // console.log(t);
     const dt = this.#getDeltaT(t);
     this.#entities.forEach((e) => e.update(t, dt));
 
     // Render the scene
     this.renderer.render(this.scene, this.camera);
-    //this.controls.update();
+    // this.controls.update();
   }
 
   /** @param {number} t*/
