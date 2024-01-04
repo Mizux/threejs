@@ -1,11 +1,11 @@
 // @ts-check
-//import * as ROT from './vendor/rot.js';
+// import * as ROT from './vendor/rot.js';
 import Debug from './Debug.js';
 import Game from './Game.js';
 
 export default class Render {
   #debug;
-  #prev ;
+  #prev;
   #game;
   #callback;
 
@@ -18,51 +18,34 @@ export default class Render {
     this.display = new ROT.Display();
   }
 
-  getNode() {
-    return this.display.getContainer();
-  }
+  getNode() { return this.display.getContainer(); }
 
   // Control the rendering engine
-  start() {
-    this.update();
-  }
+  start() { this.update(); }
   stop() {
     if (this.#callback !== null)
       cancelAnimationFrame(this.#callback);
   }
 
   update(/*timestamp*/) {
-    //console.log(timestamp);
+    // console.log(timestamp);
     this.#callback = requestAnimationFrame(this.update.bind(this));
     this.#debug.update();
 
     this.display.clear();
     for (const position of this.#game.world.emptyCells()) {
-      this.display.draw(
-        position.x,
-        position.y,
-        this.#worldItemToSprite('floor')
-      );
+      this.display.draw(position.x, position.y,
+                        this.#worldItemToSprite('floor'));
     }
     for (const position of this.#game.world.boxes()) {
-      this.display.draw(
-        position.x,
-        position.y,
-        this.#worldItemToSprite('box')
-      );
+      this.display.draw(position.x, position.y, this.#worldItemToSprite('box'));
     }
     for (const mob of this.#game.world.mobs) {
-      this.display.draw(
-        mob.position.x,
-        mob.position.y,
-        this.#worldItemToSprite('mob')
-      );
+      this.display.draw(mob.position.x, mob.position.y,
+                        this.#worldItemToSprite('mob'));
     }
-    this.display.draw(
-      this.#game.world.player.position.x,
-      this.#game.world.player.position.y,
-      '@'
-    );
+    this.display.draw(this.#game.world.player.position.x,
+                      this.#game.world.player.position.y, '@');
   }
 
   #worldItemToSprite(item) {

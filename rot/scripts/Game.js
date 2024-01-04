@@ -1,12 +1,13 @@
 // @ts-check
-//import * as ROT from './vendor/rot.js';
-import Render from './Render.js';
+// import * as ROT from './vendor/rot.js';
 import InputHandler from './InputHandler.js';
+import Render from './Render.js';
 import {World} from './World.js';
+
 class State {
   static STARTED = new State('STARTED');
   static STOPPED = new State('STOPPED');
-  //static BOX = new MapItem('BOX');
+  // static BOX = new MapItem('BOX');
 
   /** @arg name {string} */
   constructor(name) {
@@ -23,8 +24,10 @@ export default class Game {
   constructor(node = null) {
     this.#state = State.STOPPED;
     this.#render = new Render(this);
-    if (node === null) document.body.appendChild(this.#render.getNode());
-    else node.appendChild(this.#render.getNode());
+    if (node === null)
+      document.body.appendChild(this.#render.getNode());
+    else
+      node.appendChild(this.#render.getNode());
 
     this.input = new InputHandler(this);
     this.scheduler = new ROT.Scheduler.Simple();

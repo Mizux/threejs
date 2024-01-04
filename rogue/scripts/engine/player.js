@@ -3,9 +3,7 @@ import Actor from './actor.js';
 import Vector2 from './vector2.js';
 
 export default class Player extends Actor {
-  constructor(game, position) {
-    super(game, position);
-  }
+  constructor(game, position) { super(game, position); }
 
   act() {
     // console.log('act...');

@@ -7,9 +7,6 @@ game.start();
 // Leak Testing: reset Game
 function update() {
   game.reset();
-  setTimeout(() => {
-    update();
-  }, 10*1000);
+  setTimeout(() => { update(); }, 10 * 1000);
 }
 update();
-

@@ -9,13 +9,12 @@ export default class Actor {
   constructor(game, position) {
     console.assert(game instanceof Game, 'game must be of type Game');
     this._game = game;
-    console.assert(position instanceof Vector2, 'position must be of type Vector2');
+    console.assert(position instanceof Vector2,
+                   'position must be of type Vector2');
     this.position = position.clone();
 
     this._game.scheduler.add(this, true);
   }
 
-  dispose() {
-    this._game.scheduler.remove(this, true);
-  }
+  dispose() { this._game.scheduler.remove(this, true); }
 }

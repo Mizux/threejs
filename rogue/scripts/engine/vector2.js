@@ -11,21 +11,13 @@ export default class Vector2 {
     this.isVector2 = true;
   }
 
-  get width() {
-    return this.x;
-  }
+  get width() { return this.x; }
 
-  set width(value) {
-    this.x = value;
-  }
+  set width(value) { this.x = value; }
 
-  get height() {
-    return this.y;
-  }
+  get height() { return this.y; }
 
-  set height(value) {
-    this.y = value;
-  }
+  set height(value) { this.y = value; }
 
   /**
    * @param {number} x
@@ -72,14 +64,14 @@ export default class Vector2 {
    */
   setComponent(index, value) {
     switch (index) {
-      case 0:
-        this.x = value;
-        break;
-      case 1:
-        this.y = value;
-        break;
-      default:
-        throw new Error('index is out of range: ' + index);
+    case 0:
+      this.x = value;
+      break;
+    case 1:
+      this.y = value;
+      break;
+    default:
+      throw new Error('index is out of range: ' + index);
     }
 
     return this;
@@ -90,18 +82,16 @@ export default class Vector2 {
    */
   getComponent(index) {
     switch (index) {
-      case 0:
-        return this.x;
-      case 1:
-        return this.y;
-      default:
-        throw new Error('index is out of range: ' + index);
+    case 0:
+      return this.x;
+    case 1:
+      return this.y;
+    default:
+      throw new Error('index is out of range: ' + index);
     }
   }
 
-  clone() {
-    return new this.constructor(this.x, this.y);
-  }
+  clone() { return new this.constructor(this.x, this.y); }
 
   /**
    * @param {{ x: number; y: number; }} v
@@ -219,9 +209,7 @@ export default class Vector2 {
   /**
    * @param {number} scalar
    */
-  divideScalar(scalar) {
-    return this.multiplyScalar(1 / scalar);
-  }
+  divideScalar(scalar) { return this.multiplyScalar(1 / scalar); }
 
   /**
    * @param {{ elements: any; }} m
@@ -329,32 +317,20 @@ export default class Vector2 {
   /**
    * @param {{ x: number; y: number; }} v
    */
-  dot(v) {
-    return this.x * v.x + this.y * v.y;
-  }
+  dot(v) { return this.x * v.x + this.y * v.y; }
 
   /**
    * @param {{ y: number; x: number; }} v
    */
-  cross(v) {
-    return this.x * v.y - this.y * v.x;
-  }
+  cross(v) { return this.x * v.y - this.y * v.x; }
 
-  lengthSq() {
-    return this.x * this.x + this.y * this.y;
-  }
+  lengthSq() { return this.x * this.x + this.y * this.y; }
 
-  length() {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
-  }
+  length() { return Math.sqrt(this.x * this.x + this.y * this.y); }
 
-  manhattanLength() {
-    return Math.abs(this.x) + Math.abs(this.y);
-  }
+  manhattanLength() { return Math.abs(this.x) + Math.abs(this.y); }
 
-  normalize() {
-    return this.divideScalar(this.length() || 1);
-  }
+  normalize() { return this.divideScalar(this.length() || 1); }
 
   angle() {
     // computes the angle in radians with respect to the positive x-axis
@@ -367,9 +343,7 @@ export default class Vector2 {
   /**
    * @param {any} v
    */
-  distanceTo(v) {
-    return Math.sqrt(this.distanceToSquared(v));
-  }
+  distanceTo(v) { return Math.sqrt(this.distanceToSquared(v)); }
 
   /**
    * @param {{ x: number; y: number; }} v
@@ -389,9 +363,7 @@ export default class Vector2 {
   /**
    * @param {any} length
    */
-  setLength(length) {
-    return this.normalize().multiplyScalar(length);
-  }
+  setLength(length) { return this.normalize().multiplyScalar(length); }
 
   /**
    * @param {{ x: number; y: number; }} v
@@ -419,9 +391,7 @@ export default class Vector2 {
   /**
    * @param {{ x: number; y: number; }} v
    */
-  equals(v) {
-    return v.x === this.x && v.y === this.y;
-  }
+  equals(v) { return v.x === this.x && v.y === this.y; }
 
   /**
    * @param {number[]} array
@@ -475,11 +445,9 @@ export default class Vector2 {
     return this;
   }
 
-  key() {
-    return `${this.x},${this.y}`;
-  }
+  key() { return `${this.x},${this.y}`; }
 
-  * [Symbol.iterator]() {
+  * [ Symbol.iterator ]() {
     yield this.x;
     yield this.y;
   }

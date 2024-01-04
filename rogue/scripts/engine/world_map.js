@@ -17,8 +17,12 @@ export class WorldMap {
   #map;
   #rooms;
 
+  /**
+   * @param {number} width
+   * @param {number} height
+   */
   constructor(width, height) {
-    WorldMap.prototype.isWorldMap = true;
+    this.isWorldMap = true;
     this.width = width;
     this.height = height;
     this.#map = new Map();
@@ -33,15 +37,16 @@ export class WorldMap {
   floors() {
     const locations = [];
     this.#map.forEach((type, position) => {
-      if (type === MapItem.FLOOR) locations.push(position);
+      if (type === MapItem.FLOOR)
+        locations.push(position);
     });
     return locations;
   }
 
   isWalkable(position) {
-    console.assert(
-        position instanceof Vector2, 'position must be of type Vector2');
-    return [...this.#map.keys()].find(k => position.equals(k)) !== undefined;
+    console.assert(position instanceof Vector2,
+                   'position must be of type Vector2');
+    return [...this.#map.keys() ].find(k => position.equals(k)) !== undefined;
   }
 
   #generateMap() {

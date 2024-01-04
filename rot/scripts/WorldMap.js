@@ -1,11 +1,11 @@
 // @ts-check
-//import * as ROT from './vendor/rot.js';
+// import * as ROT from './vendor/rot.js';
 import Vector2 from './Vector2.js';
 
 export class MapItem {
   static FLOOR = new MapItem('FLOOR');
-  //static WALL = new MapItem('WALL');
-  //static BOX = new MapItem('BOX');
+  // static WALL = new MapItem('WALL');
+  // static BOX = new MapItem('BOX');
 
   constructor(name) {
     this.name = name;
@@ -32,19 +32,21 @@ export class WorldMap {
   floors() {
     const locations = [];
     this.#map.forEach((type, position) => {
-      if (type === MapItem.FLOOR) locations.push(position);
+      if (type === MapItem.FLOOR)
+        locations.push(position);
     });
     return locations;
   }
 
   isWalkable(position) {
-    console.assert(position instanceof Vector2, 'position must be of type Vector2');
-    return [...this.#map.keys()].find(k => position.equals(k)) !== undefined;
+    console.assert(position instanceof Vector2,
+                   'position must be of type Vector2');
+    return [...this.#map.keys() ].find(k => position.equals(k)) !== undefined;
   }
 
   #generateMap() {
     const digger = new ROT.Map.Digger(this.width, this.height);
-    const digCallback = function (x, y, value) {
+    const digCallback = function(x, y, value) {
       if (value) {
         return;
       }
@@ -54,4 +56,3 @@ export class WorldMap {
     digger.create(digCallback.bind(this));
   }
 }
-

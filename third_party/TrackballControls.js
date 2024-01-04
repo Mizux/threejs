@@ -1,828 +1,763 @@
 import {
-	EventDispatcher,
-	MathUtils,
-	MOUSE,
-	Quaternion,
-	Vector2,
-	Vector3
+  EventDispatcher,
+  MathUtils,
+  MOUSE,
+  Quaternion,
+  Vector2,
+  Vector3
 } from './three.module.js';
 
-const _changeEvent = { type: 'change' };
-const _startEvent = { type: 'start' };
-const _endEvent = { type: 'end' };
+const _changeEvent = {
+  type : 'change'
+};
+const _startEvent = {
+  type : 'start'
+};
+const _endEvent = {
+  type : 'end'
+};
 
 class TrackballControls extends EventDispatcher {
 
-	constructor( object, domElement ) {
+  constructor(object, domElement) {
 
-		super();
+    super();
 
-		const scope = this;
-		const STATE = { NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 };
+    const scope = this;
+    const STATE = {
+      NONE : -1,
+      ROTATE : 0,
+      ZOOM : 1,
+      PAN : 2,
+      TOUCH_ROTATE : 3,
+      TOUCH_ZOOM_PAN : 4
+    };
 
-		this.object = object;
-		this.domElement = domElement;
-		this.domElement.style.touchAction = 'none'; // disable touch scroll
+    this.object = object;
+    this.domElement = domElement;
+    this.domElement.style.touchAction = 'none'; // disable touch scroll
 
-		// API
+    // API
 
-		this.enabled = true;
+    this.enabled = true;
 
-		this.screen = { left: 0, top: 0, width: 0, height: 0 };
+    this.screen = {left : 0, top : 0, width : 0, height : 0};
 
-		this.rotateSpeed = 1.0;
-		this.zoomSpeed = 1.2;
-		this.panSpeed = 0.3;
+    this.rotateSpeed = 1.0;
+    this.zoomSpeed = 1.2;
+    this.panSpeed = 0.3;
 
-		this.noRotate = false;
-		this.noZoom = false;
-		this.noPan = false;
+    this.noRotate = false;
+    this.noZoom = false;
+    this.noPan = false;
 
-		this.staticMoving = false;
-		this.dynamicDampingFactor = 0.2;
+    this.staticMoving = false;
+    this.dynamicDampingFactor = 0.2;
 
-		this.minDistance = 0;
-		this.maxDistance = Infinity;
+    this.minDistance = 0;
+    this.maxDistance = Infinity;
 
-		this.minZoom = 0;
-		this.maxZoom = Infinity;
+    this.minZoom = 0;
+    this.maxZoom = Infinity;
 
-		this.keys = [ 'KeyA' /*A*/, 'KeyS' /*S*/, 'KeyD' /*D*/ ];
+    this.keys = [ 'KeyA' /*A*/, 'KeyS' /*S*/, 'KeyD' /*D*/ ];
 
-		this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+    this.mouseButtons = {
+      LEFT : MOUSE.ROTATE,
+      MIDDLE : MOUSE.DOLLY,
+      RIGHT : MOUSE.PAN
+    };
 
-		// internals
+    // internals
 
-		this.target = new Vector3();
+    this.target = new Vector3();
 
-		const EPS = 0.000001;
+    const EPS = 0.000001;
 
-		const lastPosition = new Vector3();
-		let lastZoom = 1;
+    const lastPosition = new Vector3();
+    let lastZoom = 1;
 
-		let _state = STATE.NONE,
-			_keyState = STATE.NONE,
+    let _state = STATE.NONE, _keyState = STATE.NONE,
 
-			_touchZoomDistanceStart = 0,
-			_touchZoomDistanceEnd = 0,
+        _touchZoomDistanceStart = 0, _touchZoomDistanceEnd = 0,
 
-			_lastAngle = 0;
+        _lastAngle = 0;
 
-		const _eye = new Vector3(),
+    const _eye = new Vector3(),
 
-			_movePrev = new Vector2(),
-			_moveCurr = new Vector2(),
+          _movePrev = new Vector2(), _moveCurr = new Vector2(),
 
-			_lastAxis = new Vector3(),
+          _lastAxis = new Vector3(),
 
-			_zoomStart = new Vector2(),
-			_zoomEnd = new Vector2(),
+          _zoomStart = new Vector2(), _zoomEnd = new Vector2(),
 
-			_panStart = new Vector2(),
-			_panEnd = new Vector2(),
+          _panStart = new Vector2(), _panEnd = new Vector2(),
 
-			_pointers = [],
-			_pointerPositions = {};
+          _pointers = [], _pointerPositions = {};
 
-		// for reset
+    // for reset
 
-		this.target0 = this.target.clone();
-		this.position0 = this.object.position.clone();
-		this.up0 = this.object.up.clone();
-		this.zoom0 = this.object.zoom;
+    this.target0 = this.target.clone();
+    this.position0 = this.object.position.clone();
+    this.up0 = this.object.up.clone();
+    this.zoom0 = this.object.zoom;
 
-		// methods
+    // methods
 
-		this.handleResize = function () {
+    this.handleResize = function() {
+      const box = scope.domElement.getBoundingClientRect();
+      // adjustments come from similar code in the jquery offset() function
+      const d = scope.domElement.ownerDocument.documentElement;
+      scope.screen.left = box.left + window.pageXOffset - d.clientLeft;
+      scope.screen.top = box.top + window.pageYOffset - d.clientTop;
+      scope.screen.width = box.width;
+      scope.screen.height = box.height;
+    };
 
-			const box = scope.domElement.getBoundingClientRect();
-			// adjustments come from similar code in the jquery offset() function
-			const d = scope.domElement.ownerDocument.documentElement;
-			scope.screen.left = box.left + window.pageXOffset - d.clientLeft;
-			scope.screen.top = box.top + window.pageYOffset - d.clientTop;
-			scope.screen.width = box.width;
-			scope.screen.height = box.height;
+    const getMouseOnScreen = (function() {
+      const vector = new Vector2();
 
-		};
+      return function getMouseOnScreen(pageX, pageY) {
+        vector.set((pageX - scope.screen.left) / scope.screen.width,
+                   (pageY - scope.screen.top) / scope.screen.height);
 
-		const getMouseOnScreen = ( function () {
+        return vector;
+      };
+    }());
 
-			const vector = new Vector2();
+    const getMouseOnCircle = (function() {
+      const vector = new Vector2();
 
-			return function getMouseOnScreen( pageX, pageY ) {
+      return function getMouseOnCircle(pageX, pageY) {
+        vector.set(
+            ((pageX - scope.screen.width * 0.5 - scope.screen.left) /
+             (scope.screen.width * 0.5)),
+            ((scope.screen.height + 2 * (scope.screen.top - pageY)) /
+             scope.screen.width) // screen.width intentional
+        );
 
-				vector.set(
-					( pageX - scope.screen.left ) / scope.screen.width,
-					( pageY - scope.screen.top ) / scope.screen.height
-				);
+        return vector;
+      };
+    }());
 
-				return vector;
+    this.rotateCamera = (function() {
+      const axis = new Vector3(), quaternion = new Quaternion(),
+            eyeDirection = new Vector3(), objectUpDirection = new Vector3(),
+            objectSidewaysDirection = new Vector3(),
+            moveDirection = new Vector3();
 
-			};
+      return function rotateCamera() {
+        moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y,
+                          0);
+        let angle = moveDirection.length();
 
-		}() );
+        if (angle) {
 
-		const getMouseOnCircle = ( function () {
+          _eye.copy(scope.object.position).sub(scope.target);
 
-			const vector = new Vector2();
+          eyeDirection.copy(_eye).normalize();
+          objectUpDirection.copy(scope.object.up).normalize();
+          objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection)
+              .normalize();
 
-			return function getMouseOnCircle( pageX, pageY ) {
+          objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
+          objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
 
-				vector.set(
-					( ( pageX - scope.screen.width * 0.5 - scope.screen.left ) / ( scope.screen.width * 0.5 ) ),
-					( ( scope.screen.height + 2 * ( scope.screen.top - pageY ) ) / scope.screen.width ) // screen.width intentional
-				);
+          moveDirection.copy(objectUpDirection.add(objectSidewaysDirection));
 
-				return vector;
+          axis.crossVectors(moveDirection, _eye).normalize();
 
-			};
+          angle *= scope.rotateSpeed;
+          quaternion.setFromAxisAngle(axis, angle);
 
-		}() );
+          _eye.applyQuaternion(quaternion);
+          scope.object.up.applyQuaternion(quaternion);
 
-		this.rotateCamera = ( function () {
+          _lastAxis.copy(axis);
+          _lastAngle = angle;
 
-			const axis = new Vector3(),
-				quaternion = new Quaternion(),
-				eyeDirection = new Vector3(),
-				objectUpDirection = new Vector3(),
-				objectSidewaysDirection = new Vector3(),
-				moveDirection = new Vector3();
+        } else if (!scope.staticMoving && _lastAngle) {
 
-			return function rotateCamera() {
+          _lastAngle *= Math.sqrt(1.0 - scope.dynamicDampingFactor);
+          _eye.copy(scope.object.position).sub(scope.target);
+          quaternion.setFromAxisAngle(_lastAxis, _lastAngle);
+          _eye.applyQuaternion(quaternion);
+          scope.object.up.applyQuaternion(quaternion);
+        }
 
-				moveDirection.set( _moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0 );
-				let angle = moveDirection.length();
+        _movePrev.copy(_moveCurr);
+      };
+    }());
 
-				if ( angle ) {
+    this.zoomCamera = function() {
+      let factor;
 
-					_eye.copy( scope.object.position ).sub( scope.target );
+      if (_state === STATE.TOUCH_ZOOM_PAN) {
 
-					eyeDirection.copy( _eye ).normalize();
-					objectUpDirection.copy( scope.object.up ).normalize();
-					objectSidewaysDirection.crossVectors( objectUpDirection, eyeDirection ).normalize();
+        factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
+        _touchZoomDistanceStart = _touchZoomDistanceEnd;
 
-					objectUpDirection.setLength( _moveCurr.y - _movePrev.y );
-					objectSidewaysDirection.setLength( _moveCurr.x - _movePrev.x );
+        if (scope.object.isPerspectiveCamera) {
 
-					moveDirection.copy( objectUpDirection.add( objectSidewaysDirection ) );
+          _eye.multiplyScalar(factor);
 
-					axis.crossVectors( moveDirection, _eye ).normalize();
+        } else if (scope.object.isOrthographicCamera) {
 
-					angle *= scope.rotateSpeed;
-					quaternion.setFromAxisAngle( axis, angle );
+          scope.object.zoom = MathUtils.clamp(scope.object.zoom / factor,
+                                              scope.minZoom, scope.maxZoom);
 
-					_eye.applyQuaternion( quaternion );
-					scope.object.up.applyQuaternion( quaternion );
+          if (lastZoom !== scope.object.zoom) {
 
-					_lastAxis.copy( axis );
-					_lastAngle = angle;
+            scope.object.updateProjectionMatrix();
+          }
 
-				} else if ( ! scope.staticMoving && _lastAngle ) {
+        } else {
 
-					_lastAngle *= Math.sqrt( 1.0 - scope.dynamicDampingFactor );
-					_eye.copy( scope.object.position ).sub( scope.target );
-					quaternion.setFromAxisAngle( _lastAxis, _lastAngle );
-					_eye.applyQuaternion( quaternion );
-					scope.object.up.applyQuaternion( quaternion );
+          console.warn('THREE.TrackballControls: Unsupported camera type');
+        }
 
-				}
+      } else {
 
-				_movePrev.copy( _moveCurr );
+        factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * scope.zoomSpeed;
 
-			};
+        if (factor !== 1.0 && factor > 0.0) {
 
-		}() );
+          if (scope.object.isPerspectiveCamera) {
 
+            _eye.multiplyScalar(factor);
 
-		this.zoomCamera = function () {
+          } else if (scope.object.isOrthographicCamera) {
 
-			let factor;
+            scope.object.zoom = MathUtils.clamp(scope.object.zoom / factor,
+                                                scope.minZoom, scope.maxZoom);
 
-			if ( _state === STATE.TOUCH_ZOOM_PAN ) {
+            if (lastZoom !== scope.object.zoom) {
 
-				factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
-				_touchZoomDistanceStart = _touchZoomDistanceEnd;
+              scope.object.updateProjectionMatrix();
+            }
 
-				if ( scope.object.isPerspectiveCamera ) {
+          } else {
 
-					_eye.multiplyScalar( factor );
+            console.warn('THREE.TrackballControls: Unsupported camera type');
+          }
+        }
 
-				} else if ( scope.object.isOrthographicCamera ) {
+        if (scope.staticMoving) {
 
-					scope.object.zoom = MathUtils.clamp( scope.object.zoom / factor, scope.minZoom, scope.maxZoom );
+          _zoomStart.copy(_zoomEnd);
 
-					if ( lastZoom !== scope.object.zoom ) {
+        } else {
 
-						scope.object.updateProjectionMatrix();
+          _zoomStart.y +=
+              (_zoomEnd.y - _zoomStart.y) * this.dynamicDampingFactor;
+        }
+      }
+    };
 
-					}
+    this.panCamera = (function() {
+      const mouseChange = new Vector2(), objectUp = new Vector3(),
+            pan = new Vector3();
 
-				} else {
+      return function panCamera() {
+        mouseChange.copy(_panEnd).sub(_panStart);
 
-					console.warn( 'THREE.TrackballControls: Unsupported camera type' );
+        if (mouseChange.lengthSq()) {
 
-				}
+          if (scope.object.isOrthographicCamera) {
 
-			} else {
+            const scale_x = (scope.object.right - scope.object.left) /
+                            scope.object.zoom / scope.domElement.clientWidth;
+            const scale_y = (scope.object.top - scope.object.bottom) /
+                            scope.object.zoom / scope.domElement.clientWidth;
 
-				factor = 1.0 + ( _zoomEnd.y - _zoomStart.y ) * scope.zoomSpeed;
+            mouseChange.x *= scale_x;
+            mouseChange.y *= scale_y;
+          }
 
-				if ( factor !== 1.0 && factor > 0.0 ) {
+          mouseChange.multiplyScalar(_eye.length() * scope.panSpeed);
 
-					if ( scope.object.isPerspectiveCamera ) {
+          pan.copy(_eye).cross(scope.object.up).setLength(mouseChange.x);
+          pan.add(objectUp.copy(scope.object.up).setLength(mouseChange.y));
 
-						_eye.multiplyScalar( factor );
+          scope.object.position.add(pan);
+          scope.target.add(pan);
 
-					} else if ( scope.object.isOrthographicCamera ) {
+          if (scope.staticMoving) {
 
-						scope.object.zoom = MathUtils.clamp( scope.object.zoom / factor, scope.minZoom, scope.maxZoom );
+            _panStart.copy(_panEnd);
 
-						if ( lastZoom !== scope.object.zoom ) {
+          } else {
 
-							scope.object.updateProjectionMatrix();
+            _panStart.add(mouseChange.subVectors(_panEnd, _panStart)
+                              .multiplyScalar(scope.dynamicDampingFactor));
+          }
+        }
+      };
+    }());
 
-						}
+    this.checkDistances = function() {
+      if (!scope.noZoom || !scope.noPan) {
 
-					} else {
+        if (_eye.lengthSq() > scope.maxDistance * scope.maxDistance) {
 
-						console.warn( 'THREE.TrackballControls: Unsupported camera type' );
+          scope.object.position.addVectors(scope.target,
+                                           _eye.setLength(scope.maxDistance));
+          _zoomStart.copy(_zoomEnd);
+        }
 
-					}
+        if (_eye.lengthSq() < scope.minDistance * scope.minDistance) {
 
-				}
+          scope.object.position.addVectors(scope.target,
+                                           _eye.setLength(scope.minDistance));
+          _zoomStart.copy(_zoomEnd);
+        }
+      }
+    };
 
-				if ( scope.staticMoving ) {
+    this.update = function() {
+      _eye.subVectors(scope.object.position, scope.target);
 
-					_zoomStart.copy( _zoomEnd );
+      if (!scope.noRotate) {
 
-				} else {
+        scope.rotateCamera();
+      }
 
-					_zoomStart.y += ( _zoomEnd.y - _zoomStart.y ) * this.dynamicDampingFactor;
+      if (!scope.noZoom) {
 
-				}
+        scope.zoomCamera();
+      }
 
-			}
+      if (!scope.noPan) {
 
-		};
+        scope.panCamera();
+      }
 
-		this.panCamera = ( function () {
+      scope.object.position.addVectors(scope.target, _eye);
 
-			const mouseChange = new Vector2(),
-				objectUp = new Vector3(),
-				pan = new Vector3();
+      if (scope.object.isPerspectiveCamera) {
 
-			return function panCamera() {
+        scope.checkDistances();
 
-				mouseChange.copy( _panEnd ).sub( _panStart );
+        scope.object.lookAt(scope.target);
 
-				if ( mouseChange.lengthSq() ) {
+        if (lastPosition.distanceToSquared(scope.object.position) > EPS) {
 
-					if ( scope.object.isOrthographicCamera ) {
+          scope.dispatchEvent(_changeEvent);
 
-						const scale_x = ( scope.object.right - scope.object.left ) / scope.object.zoom / scope.domElement.clientWidth;
-						const scale_y = ( scope.object.top - scope.object.bottom ) / scope.object.zoom / scope.domElement.clientWidth;
+          lastPosition.copy(scope.object.position);
+        }
 
-						mouseChange.x *= scale_x;
-						mouseChange.y *= scale_y;
+      } else if (scope.object.isOrthographicCamera) {
 
-					}
+        scope.object.lookAt(scope.target);
 
-					mouseChange.multiplyScalar( _eye.length() * scope.panSpeed );
+        if (lastPosition.distanceToSquared(scope.object.position) > EPS ||
+            lastZoom !== scope.object.zoom) {
 
-					pan.copy( _eye ).cross( scope.object.up ).setLength( mouseChange.x );
-					pan.add( objectUp.copy( scope.object.up ).setLength( mouseChange.y ) );
+          scope.dispatchEvent(_changeEvent);
 
-					scope.object.position.add( pan );
-					scope.target.add( pan );
+          lastPosition.copy(scope.object.position);
+          lastZoom = scope.object.zoom;
+        }
 
-					if ( scope.staticMoving ) {
+      } else {
 
-						_panStart.copy( _panEnd );
+        console.warn('THREE.TrackballControls: Unsupported camera type');
+      }
+    };
 
-					} else {
+    this.reset = function() {
+      _state = STATE.NONE;
+      _keyState = STATE.NONE;
 
-						_panStart.add( mouseChange.subVectors( _panEnd, _panStart ).multiplyScalar( scope.dynamicDampingFactor ) );
+      scope.target.copy(scope.target0);
+      scope.object.position.copy(scope.position0);
+      scope.object.up.copy(scope.up0);
+      scope.object.zoom = scope.zoom0;
 
-					}
+      scope.object.updateProjectionMatrix();
 
-				}
+      _eye.subVectors(scope.object.position, scope.target);
 
-			};
+      scope.object.lookAt(scope.target);
 
-		}() );
+      scope.dispatchEvent(_changeEvent);
 
-		this.checkDistances = function () {
+      lastPosition.copy(scope.object.position);
+      lastZoom = scope.object.zoom;
+    };
 
-			if ( ! scope.noZoom || ! scope.noPan ) {
+    // listeners
 
-				if ( _eye.lengthSq() > scope.maxDistance * scope.maxDistance ) {
+    function onPointerDown(event) {
 
-					scope.object.position.addVectors( scope.target, _eye.setLength( scope.maxDistance ) );
-					_zoomStart.copy( _zoomEnd );
+      if (scope.enabled === false)
+        return;
 
-				}
+      if (_pointers.length === 0) {
 
-				if ( _eye.lengthSq() < scope.minDistance * scope.minDistance ) {
+        scope.domElement.setPointerCapture(event.pointerId);
 
-					scope.object.position.addVectors( scope.target, _eye.setLength( scope.minDistance ) );
-					_zoomStart.copy( _zoomEnd );
+        scope.domElement.addEventListener('pointermove', onPointerMove);
+        scope.domElement.addEventListener('pointerup', onPointerUp);
+      }
 
-				}
+      //
 
-			}
+      addPointer(event);
 
-		};
+      if (event.pointerType === 'touch') {
 
-		this.update = function () {
+        onTouchStart(event);
 
-			_eye.subVectors( scope.object.position, scope.target );
+      } else {
 
-			if ( ! scope.noRotate ) {
+        onMouseDown(event);
+      }
+    }
 
-				scope.rotateCamera();
+    function onPointerMove(event) {
 
-			}
+      if (scope.enabled === false)
+        return;
 
-			if ( ! scope.noZoom ) {
+      if (event.pointerType === 'touch') {
 
-				scope.zoomCamera();
+        onTouchMove(event);
 
-			}
+      } else {
 
-			if ( ! scope.noPan ) {
+        onMouseMove(event);
+      }
+    }
 
-				scope.panCamera();
+    function onPointerUp(event) {
 
-			}
+      if (scope.enabled === false)
+        return;
 
-			scope.object.position.addVectors( scope.target, _eye );
+      if (event.pointerType === 'touch') {
 
-			if ( scope.object.isPerspectiveCamera ) {
+        onTouchEnd(event);
 
-				scope.checkDistances();
+      } else {
 
-				scope.object.lookAt( scope.target );
+        onMouseUp();
+      }
 
-				if ( lastPosition.distanceToSquared( scope.object.position ) > EPS ) {
+      //
 
-					scope.dispatchEvent( _changeEvent );
+      removePointer(event);
 
-					lastPosition.copy( scope.object.position );
+      if (_pointers.length === 0) {
 
-				}
+        scope.domElement.releasePointerCapture(event.pointerId);
 
-			} else if ( scope.object.isOrthographicCamera ) {
+        scope.domElement.removeEventListener('pointermove', onPointerMove);
+        scope.domElement.removeEventListener('pointerup', onPointerUp);
+      }
+    }
 
-				scope.object.lookAt( scope.target );
+    function onPointerCancel(event) { removePointer(event); }
 
-				if ( lastPosition.distanceToSquared( scope.object.position ) > EPS || lastZoom !== scope.object.zoom ) {
+    function keydown(event) {
 
-					scope.dispatchEvent( _changeEvent );
+      if (scope.enabled === false)
+        return;
 
-					lastPosition.copy( scope.object.position );
-					lastZoom = scope.object.zoom;
+      window.removeEventListener('keydown', keydown);
 
-				}
+      if (_keyState !== STATE.NONE) {
 
-			} else {
+        return;
 
-				console.warn( 'THREE.TrackballControls: Unsupported camera type' );
+      } else if (event.code === scope.keys[STATE.ROTATE] && !scope.noRotate) {
 
-			}
+        _keyState = STATE.ROTATE;
 
-		};
+      } else if (event.code === scope.keys[STATE.ZOOM] && !scope.noZoom) {
 
-		this.reset = function () {
+        _keyState = STATE.ZOOM;
 
-			_state = STATE.NONE;
-			_keyState = STATE.NONE;
+      } else if (event.code === scope.keys[STATE.PAN] && !scope.noPan) {
 
-			scope.target.copy( scope.target0 );
-			scope.object.position.copy( scope.position0 );
-			scope.object.up.copy( scope.up0 );
-			scope.object.zoom = scope.zoom0;
+        _keyState = STATE.PAN;
+      }
+    }
 
-			scope.object.updateProjectionMatrix();
+    function keyup() {
 
-			_eye.subVectors( scope.object.position, scope.target );
+      if (scope.enabled === false)
+        return;
 
-			scope.object.lookAt( scope.target );
+      _keyState = STATE.NONE;
 
-			scope.dispatchEvent( _changeEvent );
+      window.addEventListener('keydown', keydown);
+    }
 
-			lastPosition.copy( scope.object.position );
-			lastZoom = scope.object.zoom;
+    function onMouseDown(event) {
 
-		};
+      if (_state === STATE.NONE) {
 
-		// listeners
+        switch (event.button) {
 
-		function onPointerDown( event ) {
+        case scope.mouseButtons.LEFT:
+          _state = STATE.ROTATE;
+          break;
 
-			if ( scope.enabled === false ) return;
+        case scope.mouseButtons.MIDDLE:
+          _state = STATE.ZOOM;
+          break;
 
-			if ( _pointers.length === 0 ) {
+        case scope.mouseButtons.RIGHT:
+          _state = STATE.PAN;
+          break;
+        }
+      }
 
-				scope.domElement.setPointerCapture( event.pointerId );
+      const state = (_keyState !== STATE.NONE) ? _keyState : _state;
 
-				scope.domElement.addEventListener( 'pointermove', onPointerMove );
-				scope.domElement.addEventListener( 'pointerup', onPointerUp );
+      if (state === STATE.ROTATE && !scope.noRotate) {
 
-			}
+        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+        _movePrev.copy(_moveCurr);
 
-			//
+      } else if (state === STATE.ZOOM && !scope.noZoom) {
 
-			addPointer( event );
+        _zoomStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+        _zoomEnd.copy(_zoomStart);
 
-			if ( event.pointerType === 'touch' ) {
+      } else if (state === STATE.PAN && !scope.noPan) {
 
-				onTouchStart( event );
+        _panStart.copy(getMouseOnScreen(event.pageX, event.pageY));
+        _panEnd.copy(_panStart);
+      }
 
-			} else {
+      scope.dispatchEvent(_startEvent);
+    }
 
-				onMouseDown( event );
+    function onMouseMove(event) {
 
-			}
+      const state = (_keyState !== STATE.NONE) ? _keyState : _state;
 
-		}
+      if (state === STATE.ROTATE && !scope.noRotate) {
 
-		function onPointerMove( event ) {
+        _movePrev.copy(_moveCurr);
+        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
 
-			if ( scope.enabled === false ) return;
+      } else if (state === STATE.ZOOM && !scope.noZoom) {
 
-			if ( event.pointerType === 'touch' ) {
+        _zoomEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
 
-				onTouchMove( event );
+      } else if (state === STATE.PAN && !scope.noPan) {
 
-			} else {
+        _panEnd.copy(getMouseOnScreen(event.pageX, event.pageY));
+      }
+    }
 
-				onMouseMove( event );
+    function onMouseUp() {
 
-			}
+      _state = STATE.NONE;
 
-		}
+      scope.dispatchEvent(_endEvent);
+    }
 
-		function onPointerUp( event ) {
+    function onMouseWheel(event) {
 
-			if ( scope.enabled === false ) return;
+      if (scope.enabled === false)
+        return;
 
-			if ( event.pointerType === 'touch' ) {
+      if (scope.noZoom === true)
+        return;
 
-				onTouchEnd( event );
+      event.preventDefault();
 
-			} else {
+      switch (event.deltaMode) {
 
-				onMouseUp();
+      case 2:
+        // Zoom in pages
+        _zoomStart.y -= event.deltaY * 0.025;
+        break;
 
-			}
+      case 1:
+        // Zoom in lines
+        _zoomStart.y -= event.deltaY * 0.01;
+        break;
 
-			//
+      default:
+        // undefined, 0, assume pixels
+        _zoomStart.y -= event.deltaY * 0.00025;
+        break;
+      }
 
-			removePointer( event );
+      scope.dispatchEvent(_startEvent);
+      scope.dispatchEvent(_endEvent);
+    }
 
-			if ( _pointers.length === 0 ) {
+    function onTouchStart(event) {
 
-				scope.domElement.releasePointerCapture( event.pointerId );
+      trackPointer(event);
 
-				scope.domElement.removeEventListener( 'pointermove', onPointerMove );
-				scope.domElement.removeEventListener( 'pointerup', onPointerUp );
+      switch (_pointers.length) {
 
-			}
+      case 1:
+        _state = STATE.TOUCH_ROTATE;
+        _moveCurr.copy(
+            getMouseOnCircle(_pointers[0].pageX, _pointers[0].pageY));
+        _movePrev.copy(_moveCurr);
+        break;
 
+      default: // 2 or more
+        _state = STATE.TOUCH_ZOOM_PAN;
+        const dx = _pointers[0].pageX - _pointers[1].pageX;
+        const dy = _pointers[0].pageY - _pointers[1].pageY;
+        _touchZoomDistanceEnd = _touchZoomDistanceStart =
+            Math.sqrt(dx * dx + dy * dy);
 
-		}
+        const x = (_pointers[0].pageX + _pointers[1].pageX) / 2;
+        const y = (_pointers[0].pageY + _pointers[1].pageY) / 2;
+        _panStart.copy(getMouseOnScreen(x, y));
+        _panEnd.copy(_panStart);
+        break;
+      }
 
-		function onPointerCancel( event ) {
+      scope.dispatchEvent(_startEvent);
+    }
 
-			removePointer( event );
+    function onTouchMove(event) {
 
-		}
+      trackPointer(event);
 
-		function keydown( event ) {
+      switch (_pointers.length) {
 
-			if ( scope.enabled === false ) return;
+      case 1:
+        _movePrev.copy(_moveCurr);
+        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+        break;
 
-			window.removeEventListener( 'keydown', keydown );
+      default: // 2 or more
 
-			if ( _keyState !== STATE.NONE ) {
+        const position = getSecondPointerPosition(event);
 
-				return;
+        const dx = event.pageX - position.x;
+        const dy = event.pageY - position.y;
+        _touchZoomDistanceEnd = Math.sqrt(dx * dx + dy * dy);
 
-			} else if ( event.code === scope.keys[ STATE.ROTATE ] && ! scope.noRotate ) {
+        const x = (event.pageX + position.x) / 2;
+        const y = (event.pageY + position.y) / 2;
+        _panEnd.copy(getMouseOnScreen(x, y));
+        break;
+      }
+    }
 
-				_keyState = STATE.ROTATE;
+    function onTouchEnd(event) {
 
-			} else if ( event.code === scope.keys[ STATE.ZOOM ] && ! scope.noZoom ) {
+      switch (_pointers.length) {
 
-				_keyState = STATE.ZOOM;
+      case 0:
+        _state = STATE.NONE;
+        break;
 
-			} else if ( event.code === scope.keys[ STATE.PAN ] && ! scope.noPan ) {
+      case 1:
+        _state = STATE.TOUCH_ROTATE;
+        _moveCurr.copy(getMouseOnCircle(event.pageX, event.pageY));
+        _movePrev.copy(_moveCurr);
+        break;
 
-				_keyState = STATE.PAN;
+      case 2:
+        _state = STATE.TOUCH_ZOOM_PAN;
 
-			}
+        for (let i = 0; i < _pointers.length; i++) {
 
-		}
+          if (_pointers[i].pointerId !== event.pointerId) {
 
-		function keyup() {
+            const position = _pointerPositions[_pointers[i].pointerId];
+            _moveCurr.copy(getMouseOnCircle(position.x, position.y));
+            _movePrev.copy(_moveCurr);
+            break;
+          }
+        }
 
-			if ( scope.enabled === false ) return;
+        break;
+      }
 
-			_keyState = STATE.NONE;
+      scope.dispatchEvent(_endEvent);
+    }
 
-			window.addEventListener( 'keydown', keydown );
+    function contextmenu(event) {
 
-		}
+      if (scope.enabled === false)
+        return;
 
-		function onMouseDown( event ) {
+      event.preventDefault();
+    }
 
-			if ( _state === STATE.NONE ) {
+    function addPointer(event) { _pointers.push(event); }
 
-				switch ( event.button ) {
+    function removePointer(event) {
 
-					case scope.mouseButtons.LEFT:
-						_state = STATE.ROTATE;
-						break;
+      delete _pointerPositions[event.pointerId];
 
-					case scope.mouseButtons.MIDDLE:
-						_state = STATE.ZOOM;
-						break;
+      for (let i = 0; i < _pointers.length; i++) {
 
-					case scope.mouseButtons.RIGHT:
-						_state = STATE.PAN;
-						break;
+        if (_pointers[i].pointerId == event.pointerId) {
 
-				}
+          _pointers.splice(i, 1);
+          return;
+        }
+      }
+    }
 
-			}
+    function trackPointer(event) {
 
-			const state = ( _keyState !== STATE.NONE ) ? _keyState : _state;
+      let position = _pointerPositions[event.pointerId];
 
-			if ( state === STATE.ROTATE && ! scope.noRotate ) {
+      if (position === undefined) {
 
-				_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
-				_movePrev.copy( _moveCurr );
+        position = new Vector2();
+        _pointerPositions[event.pointerId] = position;
+      }
 
-			} else if ( state === STATE.ZOOM && ! scope.noZoom ) {
+      position.set(event.pageX, event.pageY);
+    }
 
-				_zoomStart.copy( getMouseOnScreen( event.pageX, event.pageY ) );
-				_zoomEnd.copy( _zoomStart );
+    function getSecondPointerPosition(event) {
 
-			} else if ( state === STATE.PAN && ! scope.noPan ) {
+      const pointer = (event.pointerId === _pointers[0].pointerId)
+                          ? _pointers[1]
+                          : _pointers[0];
 
-				_panStart.copy( getMouseOnScreen( event.pageX, event.pageY ) );
-				_panEnd.copy( _panStart );
+      return _pointerPositions[pointer.pointerId];
+    }
 
-			}
+    this.dispose = function() {
+      scope.domElement.removeEventListener('contextmenu', contextmenu);
 
-			scope.dispatchEvent( _startEvent );
+      scope.domElement.removeEventListener('pointerdown', onPointerDown);
+      scope.domElement.removeEventListener('pointercancel', onPointerCancel);
+      scope.domElement.removeEventListener('wheel', onMouseWheel);
 
-		}
+      scope.domElement.removeEventListener('pointermove', onPointerMove);
+      scope.domElement.removeEventListener('pointerup', onPointerUp);
 
-		function onMouseMove( event ) {
+      window.removeEventListener('keydown', keydown);
+      window.removeEventListener('keyup', keyup);
+    };
 
-			const state = ( _keyState !== STATE.NONE ) ? _keyState : _state;
+    this.domElement.addEventListener('contextmenu', contextmenu);
 
-			if ( state === STATE.ROTATE && ! scope.noRotate ) {
+    this.domElement.addEventListener('pointerdown', onPointerDown);
+    this.domElement.addEventListener('pointercancel', onPointerCancel);
+    this.domElement.addEventListener('wheel', onMouseWheel, {passive : false});
 
-				_movePrev.copy( _moveCurr );
-				_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
+    window.addEventListener('keydown', keydown);
+    window.addEventListener('keyup', keyup);
 
-			} else if ( state === STATE.ZOOM && ! scope.noZoom ) {
+    this.handleResize();
 
-				_zoomEnd.copy( getMouseOnScreen( event.pageX, event.pageY ) );
-
-			} else if ( state === STATE.PAN && ! scope.noPan ) {
-
-				_panEnd.copy( getMouseOnScreen( event.pageX, event.pageY ) );
-
-			}
-
-		}
-
-		function onMouseUp() {
-
-			_state = STATE.NONE;
-
-			scope.dispatchEvent( _endEvent );
-
-		}
-
-		function onMouseWheel( event ) {
-
-			if ( scope.enabled === false ) return;
-
-			if ( scope.noZoom === true ) return;
-
-			event.preventDefault();
-
-			switch ( event.deltaMode ) {
-
-				case 2:
-					// Zoom in pages
-					_zoomStart.y -= event.deltaY * 0.025;
-					break;
-
-				case 1:
-					// Zoom in lines
-					_zoomStart.y -= event.deltaY * 0.01;
-					break;
-
-				default:
-					// undefined, 0, assume pixels
-					_zoomStart.y -= event.deltaY * 0.00025;
-					break;
-
-			}
-
-			scope.dispatchEvent( _startEvent );
-			scope.dispatchEvent( _endEvent );
-
-		}
-
-		function onTouchStart( event ) {
-
-			trackPointer( event );
-
-			switch ( _pointers.length ) {
-
-				case 1:
-					_state = STATE.TOUCH_ROTATE;
-					_moveCurr.copy( getMouseOnCircle( _pointers[ 0 ].pageX, _pointers[ 0 ].pageY ) );
-					_movePrev.copy( _moveCurr );
-					break;
-
-				default: // 2 or more
-					_state = STATE.TOUCH_ZOOM_PAN;
-					const dx = _pointers[ 0 ].pageX - _pointers[ 1 ].pageX;
-					const dy = _pointers[ 0 ].pageY - _pointers[ 1 ].pageY;
-					_touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt( dx * dx + dy * dy );
-
-					const x = ( _pointers[ 0 ].pageX + _pointers[ 1 ].pageX ) / 2;
-					const y = ( _pointers[ 0 ].pageY + _pointers[ 1 ].pageY ) / 2;
-					_panStart.copy( getMouseOnScreen( x, y ) );
-					_panEnd.copy( _panStart );
-					break;
-
-			}
-
-			scope.dispatchEvent( _startEvent );
-
-		}
-
-		function onTouchMove( event ) {
-
-			trackPointer( event );
-
-			switch ( _pointers.length ) {
-
-				case 1:
-					_movePrev.copy( _moveCurr );
-					_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
-					break;
-
-				default: // 2 or more
-
-					const position = getSecondPointerPosition( event );
-
-					const dx = event.pageX - position.x;
-					const dy = event.pageY - position.y;
-					_touchZoomDistanceEnd = Math.sqrt( dx * dx + dy * dy );
-
-					const x = ( event.pageX + position.x ) / 2;
-					const y = ( event.pageY + position.y ) / 2;
-					_panEnd.copy( getMouseOnScreen( x, y ) );
-					break;
-
-			}
-
-		}
-
-		function onTouchEnd( event ) {
-
-			switch ( _pointers.length ) {
-
-				case 0:
-					_state = STATE.NONE;
-					break;
-
-				case 1:
-					_state = STATE.TOUCH_ROTATE;
-					_moveCurr.copy( getMouseOnCircle( event.pageX, event.pageY ) );
-					_movePrev.copy( _moveCurr );
-					break;
-
-				case 2:
-					_state = STATE.TOUCH_ZOOM_PAN;
-
-					for ( let i = 0; i < _pointers.length; i ++ ) {
-
-						if ( _pointers[ i ].pointerId !== event.pointerId ) {
-
-							const position = _pointerPositions[ _pointers[ i ].pointerId ];
-							_moveCurr.copy( getMouseOnCircle( position.x, position.y ) );
-							_movePrev.copy( _moveCurr );
-							break;
-
-						}
-
-					}
-
-					break;
-
-			}
-
-			scope.dispatchEvent( _endEvent );
-
-		}
-
-		function contextmenu( event ) {
-
-			if ( scope.enabled === false ) return;
-
-			event.preventDefault();
-
-		}
-
-		function addPointer( event ) {
-
-			_pointers.push( event );
-
-		}
-
-		function removePointer( event ) {
-
-			delete _pointerPositions[ event.pointerId ];
-
-			for ( let i = 0; i < _pointers.length; i ++ ) {
-
-				if ( _pointers[ i ].pointerId == event.pointerId ) {
-
-					_pointers.splice( i, 1 );
-					return;
-
-				}
-
-			}
-
-		}
-
-		function trackPointer( event ) {
-
-			let position = _pointerPositions[ event.pointerId ];
-
-			if ( position === undefined ) {
-
-				position = new Vector2();
-				_pointerPositions[ event.pointerId ] = position;
-
-			}
-
-			position.set( event.pageX, event.pageY );
-
-		}
-
-		function getSecondPointerPosition( event ) {
-
-			const pointer = ( event.pointerId === _pointers[ 0 ].pointerId ) ? _pointers[ 1 ] : _pointers[ 0 ];
-
-			return _pointerPositions[ pointer.pointerId ];
-
-		}
-
-		this.dispose = function () {
-
-			scope.domElement.removeEventListener( 'contextmenu', contextmenu );
-
-			scope.domElement.removeEventListener( 'pointerdown', onPointerDown );
-			scope.domElement.removeEventListener( 'pointercancel', onPointerCancel );
-			scope.domElement.removeEventListener( 'wheel', onMouseWheel );
-
-			scope.domElement.removeEventListener( 'pointermove', onPointerMove );
-			scope.domElement.removeEventListener( 'pointerup', onPointerUp );
-
-			window.removeEventListener( 'keydown', keydown );
-			window.removeEventListener( 'keyup', keyup );
-
-		};
-
-		this.domElement.addEventListener( 'contextmenu', contextmenu );
-
-		this.domElement.addEventListener( 'pointerdown', onPointerDown );
-		this.domElement.addEventListener( 'pointercancel', onPointerCancel );
-		this.domElement.addEventListener( 'wheel', onMouseWheel, { passive: false } );
-
-
-		window.addEventListener( 'keydown', keydown );
-		window.addEventListener( 'keyup', keyup );
-
-		this.handleResize();
-
-		// force an update at start
-		this.update();
-
-	}
-
+    // force an update at start
+    this.update();
+  }
 }
 
-export { TrackballControls };
+export {TrackballControls};

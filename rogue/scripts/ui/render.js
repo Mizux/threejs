@@ -1,6 +1,5 @@
 // @ts-check
 // eslint-disable-next-line no-unused-vars
-// eslint-disable-next-line no-unused-vars
 import Vector2 from '../engine/vector2.js';
 import Game from '../game.js';
 import * as THREE from '../vendor/three.module.js';
@@ -41,8 +40,10 @@ class Entity {
     /** @type {THREE.Line[]} */
     const lines = [];
     this.root.traverse((/** @type {THREE.Object3D} */ object) => {
-      if (object instanceof THREE.Mesh) meshes.push(object);
-      if (object instanceof THREE.Line) lines.push(object);
+      if (object instanceof THREE.Mesh)
+        meshes.push(object);
+      if (object instanceof THREE.Line)
+        lines.push(object);
     });
     for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i];
@@ -67,9 +68,9 @@ class FloorEntity extends Entity {
 
     const planeGeometry = new THREE.PlaneGeometry(1, 1);
     const planeMaterial = new THREE.MeshPhongMaterial({
-      color: 0x010101,
-      emissive: 0x101010,
-      flatShading: true,
+      color : 0x010101,
+      emissive : 0x101010,
+      flatShading : true,
     });
     this.plane = new THREE.Mesh(planeGeometry, planeMaterial);
     this.plane.castShadow = false;
@@ -92,9 +93,9 @@ class BoxEntity extends Entity {
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     boxGeometry.scale(1, 1, 0.25);
     const boxMaterial = new THREE.MeshPhongMaterial({
-      color: 0x000020,
-      emissive: 0x000020,
-      flatShading: true,
+      color : 0x000020,
+      emissive : 0x000020,
+      flatShading : true,
     });
     this.box = new THREE.Mesh(boxGeometry, boxMaterial);
     this.box.castShadow = false;
@@ -122,19 +123,19 @@ class PlayerEntity extends Entity {
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     boxGeometry.scale(0.7, 0.7, 0.7);
     const boxMaterial = new THREE.MeshPhongMaterial({
-      color: 0x156289,
-      emissive: 0x072534,
-      flatShading: true,
+      color : 0x156289,
+      emissive : 0x072534,
+      flatShading : true,
     });
     this.box = new THREE.Mesh(boxGeometry, boxMaterial);
-    this.box.castShadow = false;     // default is false
-    this.box.receiveShadow = false;  // default
+    this.box.castShadow = false;    // default is false
+    this.box.receiveShadow = false; // default
     this.root.add(this.box);
 
     const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0xffffff,
-      transparent: true,
-      opacity: 0.5,
+      color : 0xffffff,
+      transparent : true,
+      opacity : 0.5,
     });
     this.line = new THREE.LineSegments(boxGeometry, lineMaterial);
     this.root.add(this.line);
@@ -169,13 +170,13 @@ class MonsterEntity extends Entity {
     const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
     boxGeometry.scale(0.5, 0.5, 0.5);
     const boxMaterial = new THREE.MeshPhongMaterial({
-      color: 0x008000,
-      emissive: 0x008000,
-      flatShading: true,
+      color : 0x008000,
+      emissive : 0x008000,
+      flatShading : true,
     });
     this.box = new THREE.Mesh(boxGeometry, boxMaterial);
-    this.box.castShadow = false;     // default is false
-    this.box.receiveShadow = false;  // default
+    this.box.castShadow = false;    // default is false
+    this.box.receiveShadow = false; // default
     this.root.add(this.box);
 
     this.root.position.z = 0.5;
@@ -255,7 +256,7 @@ export default class Render {
     this.camera.lookAt(0.0, 0.0, 0.0);
 
     // Create a renderer with Antialiasing
-    this.renderer = new THREE.WebGLRenderer({antialias: true});
+    this.renderer = new THREE.WebGLRenderer({antialias : true});
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -272,21 +273,18 @@ export default class Render {
     window.addEventListener('resize', () => this.#onWindowResize(), false);
   }
 
-  getNode() {
-    return this.renderer.domElement;
-  }
+  getNode() { return this.renderer.domElement; }
 
   // Control the rendering engine
   start() {
     if (this.#state === State.STARTED)
       return;
-    else
-      this.#state = State.STARTED;
+    this.#state = State.STARTED;
 
     // Reset Camera position
     const map = this.game.world.map;
     const p = Math.max(map.width, map.height) / 2 /
-        Math.tan(((this.fov / 2) * Math.PI) / 180);
+              Math.tan(((this.fov / 2) * Math.PI) / 180);
     this.camera.position.set(map.width / 2, map.height / 6, p);
     this.camera.lookAt(map.width / 2, map.height / 2, 0);
 
@@ -326,8 +324,7 @@ export default class Render {
   pause() {
     if (this.#state === State.PAUSED || this.#state === State.STOPPED)
       return;
-    else
-      this.#state = State.PAUSED;
+    this.#state = State.PAUSED;
 
     if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);
@@ -339,8 +336,7 @@ export default class Render {
   stop() {
     if (this.#state === State.STOPPED)
       return;
-    else
-      this.#state = State.STOPPED;
+    this.#state = State.STOPPED;
 
     if (this.#callback !== null) {
       cancelAnimationFrame(this.#callback);

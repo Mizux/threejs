@@ -6,21 +6,13 @@ export default class Vector2 {
     this.y = y;
   }
 
-  get width() {
-    return this.x;
-  }
+  get width() { return this.x; }
 
-  set width(value) {
-    this.x = value;
-  }
+  set width(value) { this.x = value; }
 
-  get height() {
-    return this.y;
-  }
+  get height() { return this.y; }
 
-  set height(value) {
-    this.y = value;
-  }
+  set height(value) { this.y = value; }
 
   set(x, y) {
     this.x = x;
@@ -74,9 +66,7 @@ export default class Vector2 {
     }
   }
 
-  clone() {
-    return new this.constructor(this.x, this.y);
-  }
+  clone() { return new this.constructor(this.x, this.y); }
 
   copy(v) {
     this.x = v.x;
@@ -155,13 +145,10 @@ export default class Vector2 {
     return this;
   }
 
-  divideScalar(scalar) {
-    return this.multiplyScalar(1 / scalar);
-  }
+  divideScalar(scalar) { return this.multiplyScalar(1 / scalar); }
 
   applyMatrix3(m) {
-    const x = this.x,
-      y = this.y;
+    const x = this.x, y = this.y;
     const e = m.elements;
 
     this.x = e[0] * x + e[3] * y + e[6];
@@ -203,9 +190,8 @@ export default class Vector2 {
   clampLength(min, max) {
     const length = this.length();
 
-    return this.divideScalar(length || 1).multiplyScalar(
-      Math.max(min, Math.min(max, length))
-    );
+    return this.divideScalar(length || 1)
+        .multiplyScalar(Math.max(min, Math.min(max, length)));
   }
 
   floor() {
@@ -243,29 +229,17 @@ export default class Vector2 {
     return this;
   }
 
-  dot(v) {
-    return this.x * v.x + this.y * v.y;
-  }
+  dot(v) { return this.x * v.x + this.y * v.y; }
 
-  cross(v) {
-    return this.x * v.y - this.y * v.x;
-  }
+  cross(v) { return this.x * v.y - this.y * v.x; }
 
-  lengthSq() {
-    return this.x * this.x + this.y * this.y;
-  }
+  lengthSq() { return this.x * this.x + this.y * this.y; }
 
-  length() {
-    return Math.sqrt(this.x * this.x + this.y * this.y);
-  }
+  length() { return Math.sqrt(this.x * this.x + this.y * this.y); }
 
-  manhattanLength() {
-    return Math.abs(this.x) + Math.abs(this.y);
-  }
+  manhattanLength() { return Math.abs(this.x) + Math.abs(this.y); }
 
-  normalize() {
-    return this.divideScalar(this.length() || 1);
-  }
+  normalize() { return this.divideScalar(this.length() || 1); }
 
   angle() {
     // computes the angle in radians with respect to the positive x-axis
@@ -275,13 +249,10 @@ export default class Vector2 {
     return angle;
   }
 
-  distanceTo(v) {
-    return Math.sqrt(this.distanceToSquared(v));
-  }
+  distanceTo(v) { return Math.sqrt(this.distanceToSquared(v)); }
 
   distanceToSquared(v) {
-    const dx = this.x - v.x,
-      dy = this.y - v.y;
+    const dx = this.x - v.x, dy = this.y - v.y;
     return dx * dx + dy * dy;
   }
 
@@ -289,9 +260,7 @@ export default class Vector2 {
     return Math.abs(this.x - v.x) + Math.abs(this.y - v.y);
   }
 
-  setLength(length) {
-    return this.normalize().multiplyScalar(length);
-  }
+  setLength(length) { return this.normalize().multiplyScalar(length); }
 
   lerp(v, alpha) {
     this.x += (v.x - this.x) * alpha;
@@ -307,9 +276,7 @@ export default class Vector2 {
     return this;
   }
 
-  equals(v) {
-    return v.x === this.x && v.y === this.y;
-  }
+  equals(v) { return v.x === this.x && v.y === this.y; }
 
   fromArray(array, offset = 0) {
     this.x = array[offset];
@@ -333,8 +300,7 @@ export default class Vector2 {
   }
 
   rotateAround(center, angle) {
-    const c = Math.cos(angle),
-      s = Math.sin(angle);
+    const c = Math.cos(angle), s = Math.sin(angle);
 
     const x = this.x - center.x;
     const y = this.y - center.y;
@@ -352,11 +318,9 @@ export default class Vector2 {
     return this;
   }
 
-  key() {
-    return `${this.x},${this.y}`;
-  }
+  key() { return `${this.x},${this.y}`; }
 
-  *[Symbol.iterator]() {
+  * [ Symbol.iterator ]() {
     yield this.x;
     yield this.y;
   }

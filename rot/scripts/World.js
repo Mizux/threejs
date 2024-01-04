@@ -1,10 +1,10 @@
 // @ts-check
-//import * as ROT from './vendor/rot.js';
-import Vector2 from './Vector2.js';
+// import * as ROT from './vendor/rot.js';
 import Game from './Game.js';
-import { WorldMap } from './WorldMap.js';
 import Monster from './Monster.js';
 import Player from './Player.js';
+import Vector2 from './Vector2.js';
+import {WorldMap} from './WorldMap.js';
 
 export class WorldItem {
   static OBJ = new WorldItem('OBJECT');
@@ -43,23 +43,26 @@ export class World {
     return locations;
   }
 
-  isWalkable(position) {
-    return this.map.isWalkable(position);
-  }
+  isWalkable(position) { return this.map.isWalkable(position); }
 
   boxes() {
     const locations = [];
     this.items.forEach((type, position) => {
-      if (type === WorldItem.BOX) locations.push(position); });
+      if (type === WorldItem.BOX)
+        locations.push(position);
+    });
     return locations;
   }
 
   #removeItemByType(type) {
     console.assert(type instanceof WorldItem, 'type must be of type WorldItem');
-    this.items.forEach((v, k) => { if (v === type) this.items.delete(k);});
+    this.items.forEach((v, k) => {
+      if (v === type)
+        this.items.delete(k);
+    });
   }
-   
-  #generateBoxes(numBox=24) {
+
+  #generateBoxes(numBox = 24) {
     this.#removeItemByType(WorldItem.BOX);
     const cells = this.emptyCells();
     for (let i = 0; i < numBox; i++) {
@@ -68,8 +71,8 @@ export class World {
       this.items.set(position, WorldItem.BOX);
     }
   }
-   
-  #generateMobs(numMob=5) {
+
+  #generateMobs(numMob = 5) {
     this.#removeItemByType(WorldItem.MOB);
     this.mobs.forEach(m => m.dispose());
     this.mobs.length = 0;
@@ -91,4 +94,3 @@ export class World {
     this.player.position.y = position.y;
   }
 }
-

@@ -1,162 +1,150 @@
-import {
-	Euler,
-	EventDispatcher,
-	Vector3
-} from './three.module.js';
+import {Euler, EventDispatcher, Vector3} from './three.module.js';
 
-const _euler = new Euler( 0, 0, 0, 'YXZ' );
+const _euler = new Euler(0, 0, 0, 'YXZ');
 const _vector = new Vector3();
 
-const _changeEvent = { type: 'change' };
-const _lockEvent = { type: 'lock' };
-const _unlockEvent = { type: 'unlock' };
+const _changeEvent = {
+  type : 'change'
+};
+const _lockEvent = {
+  type : 'lock'
+};
+const _unlockEvent = {
+  type : 'unlock'
+};
 
 const _PI_2 = Math.PI / 2;
 
 class PointerLockControls extends EventDispatcher {
 
-	constructor( camera, domElement ) {
+  constructor(camera, domElement) {
 
-		super();
+    super();
 
-		this.camera = camera;
-		this.domElement = domElement;
+    this.camera = camera;
+    this.domElement = domElement;
 
-		this.isLocked = false;
+    this.isLocked = false;
 
-		// Set to constrain the pitch of the camera
-		// Range is 0 to Math.PI radians
-		this.minPolarAngle = 0; // radians
-		this.maxPolarAngle = Math.PI; // radians
+    // Set to constrain the pitch of the camera
+    // Range is 0 to Math.PI radians
+    this.minPolarAngle = 0;       // radians
+    this.maxPolarAngle = Math.PI; // radians
 
-		this.pointerSpeed = 1.0;
+    this.pointerSpeed = 1.0;
 
-		this._onMouseMove = onMouseMove.bind( this );
-		this._onPointerlockChange = onPointerlockChange.bind( this );
-		this._onPointerlockError = onPointerlockError.bind( this );
+    this._onMouseMove = onMouseMove.bind(this);
+    this._onPointerlockChange = onPointerlockChange.bind(this);
+    this._onPointerlockError = onPointerlockError.bind(this);
 
-		this.connect();
+    this.connect();
+  }
 
-	}
+  connect() {
 
-	connect() {
+    this.domElement.ownerDocument.addEventListener('mousemove',
+                                                   this._onMouseMove);
+    this.domElement.ownerDocument.addEventListener('pointerlockchange',
+                                                   this._onPointerlockChange);
+    this.domElement.ownerDocument.addEventListener('pointerlockerror',
+                                                   this._onPointerlockError);
+  }
 
-		this.domElement.ownerDocument.addEventListener( 'mousemove', this._onMouseMove );
-		this.domElement.ownerDocument.addEventListener( 'pointerlockchange', this._onPointerlockChange );
-		this.domElement.ownerDocument.addEventListener( 'pointerlockerror', this._onPointerlockError );
+  disconnect() {
 
-	}
+    this.domElement.ownerDocument.removeEventListener('mousemove',
+                                                      this._onMouseMove);
+    this.domElement.ownerDocument.removeEventListener(
+        'pointerlockchange', this._onPointerlockChange);
+    this.domElement.ownerDocument.removeEventListener('pointerlockerror',
+                                                      this._onPointerlockError);
+  }
 
-	disconnect() {
+  dispose() { this.disconnect(); }
 
-		this.domElement.ownerDocument.removeEventListener( 'mousemove', this._onMouseMove );
-		this.domElement.ownerDocument.removeEventListener( 'pointerlockchange', this._onPointerlockChange );
-		this.domElement.ownerDocument.removeEventListener( 'pointerlockerror', this._onPointerlockError );
+  getObject() { // retaining this method for backward compatibility
 
-	}
+    return this.camera;
+  }
 
-	dispose() {
+  getDirection(v) {
 
-		this.disconnect();
+    return v.set(0, 0, -1).applyQuaternion(this.camera.quaternion);
+  }
 
-	}
+  moveForward(distance) {
 
-	getObject() { // retaining this method for backward compatibility
+    // move forward parallel to the xz-plane
+    // assumes camera.up is y-up
 
-		return this.camera;
+    const camera = this.camera;
 
-	}
+    _vector.setFromMatrixColumn(camera.matrix, 0);
 
-	getDirection( v ) {
+    _vector.crossVectors(camera.up, _vector);
 
-		return v.set( 0, 0, - 1 ).applyQuaternion( this.camera.quaternion );
+    camera.position.addScaledVector(_vector, distance);
+  }
 
-	}
+  moveRight(distance) {
 
-	moveForward( distance ) {
+    const camera = this.camera;
 
-		// move forward parallel to the xz-plane
-		// assumes camera.up is y-up
+    _vector.setFromMatrixColumn(camera.matrix, 0);
 
-		const camera = this.camera;
+    camera.position.addScaledVector(_vector, distance);
+  }
 
-		_vector.setFromMatrixColumn( camera.matrix, 0 );
+  lock() { this.domElement.requestPointerLock(); }
 
-		_vector.crossVectors( camera.up, _vector );
-
-		camera.position.addScaledVector( _vector, distance );
-
-	}
-
-	moveRight( distance ) {
-
-		const camera = this.camera;
-
-		_vector.setFromMatrixColumn( camera.matrix, 0 );
-
-		camera.position.addScaledVector( _vector, distance );
-
-	}
-
-	lock() {
-
-		this.domElement.requestPointerLock();
-
-	}
-
-	unlock() {
-
-		this.domElement.ownerDocument.exitPointerLock();
-
-	}
-
+  unlock() { this.domElement.ownerDocument.exitPointerLock(); }
 }
 
 // event listeners
 
-function onMouseMove( event ) {
+function onMouseMove(event) {
 
-	if ( this.isLocked === false ) return;
+  if (this.isLocked === false)
+    return;
 
-	const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-	const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+  const movementX =
+      event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+  const movementY =
+      event.movementY || event.mozMovementY || event.webkitMovementY || 0;
 
-	const camera = this.camera;
-	_euler.setFromQuaternion( camera.quaternion );
+  const camera = this.camera;
+  _euler.setFromQuaternion(camera.quaternion);
 
-	_euler.y -= movementX * 0.002 * this.pointerSpeed;
-	_euler.x -= movementY * 0.002 * this.pointerSpeed;
+  _euler.y -= movementX * 0.002 * this.pointerSpeed;
+  _euler.x -= movementY * 0.002 * this.pointerSpeed;
 
-	_euler.x = Math.max( _PI_2 - this.maxPolarAngle, Math.min( _PI_2 - this.minPolarAngle, _euler.x ) );
+  _euler.x = Math.max(_PI_2 - this.maxPolarAngle,
+                      Math.min(_PI_2 - this.minPolarAngle, _euler.x));
 
-	camera.quaternion.setFromEuler( _euler );
+  camera.quaternion.setFromEuler(_euler);
 
-	this.dispatchEvent( _changeEvent );
-
+  this.dispatchEvent(_changeEvent);
 }
 
 function onPointerlockChange() {
 
-	if ( this.domElement.ownerDocument.pointerLockElement === this.domElement ) {
+  if (this.domElement.ownerDocument.pointerLockElement === this.domElement) {
 
-		this.dispatchEvent( _lockEvent );
+    this.dispatchEvent(_lockEvent);
 
-		this.isLocked = true;
+    this.isLocked = true;
 
-	} else {
+  } else {
 
-		this.dispatchEvent( _unlockEvent );
+    this.dispatchEvent(_unlockEvent);
 
-		this.isLocked = false;
-
-	}
-
+    this.isLocked = false;
+  }
 }
 
 function onPointerlockError() {
 
-	console.error( 'THREE.PointerLockControls: Unable to use Pointer Lock API' );
-
+  console.error('THREE.PointerLockControls: Unable to use Pointer Lock API');
 }
 
-export { PointerLockControls };
+export {PointerLockControls};

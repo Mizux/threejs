@@ -10,9 +10,7 @@ export default class Monster extends Actor {
    * @param {Game} game
    * @param {Vector2} position
    */
-  constructor(game, position) {
-    super(game, position);
-  }
+  constructor(game, position) { super(game, position); }
 
   act() {
     this._game.engine.lock();

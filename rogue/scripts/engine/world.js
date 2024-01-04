@@ -46,14 +46,13 @@ export class World {
     return locations;
   }
 
-  isWalkable(position) {
-    return this.map.isWalkable(position);
-  }
+  isWalkable(position) { return this.map.isWalkable(position); }
 
   boxes() {
     const locations = [];
     this.items.forEach((type, position) => {
-      if (type === WorldItem.BOX) locations.push(position);
+      if (type === WorldItem.BOX)
+        locations.push(position);
     });
     return locations;
   }
@@ -61,7 +60,8 @@ export class World {
   #removeItemByType(type) {
     console.assert(type instanceof WorldItem, 'type must be of type WorldItem');
     this.items.forEach((v, k) => {
-      if (v === type) this.items.delete(k);
+      if (v === type)
+        this.items.delete(k);
     });
   }
 
